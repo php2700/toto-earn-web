@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 
 export const Applied = () => {
   const [appliedData, setAppliedData] = useState([]);
-  const token = localStorage.getItem("loanToken");
+  const token = localStorage.getItem("totoToken");
   const userId = localStorage.getItem("userId");
 
   useEffect(() => {

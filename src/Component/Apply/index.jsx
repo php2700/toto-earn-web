@@ -1,16 +1,164 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import bgImg from "../../assets/h1_hero.jpg";
 import axios from "axios";
-import { QRCodeCanvas as QRCode } from "qrcode.react";
-import { useNavigate } from "react-router-dom";
-import clientScanner from "../../assets/client-scanner.png";
-import account from "../../assets/account.png";
-import share from "../../assets/share.png";
-import google from "../../assets/google.jpg";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchUserData } from "../Store/userSlice";
+import { toast } from "react-toastify";
 
 export default function Apply() {
-  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const token = localStorage.getItem("totoToken");
+  const { userData } = useSelector((state) => state.user);
+  const [copied, setCopied] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [amount, setAmount] = useState("");
+  const [message, setMessage] = useState("");
   const userId = localStorage.getItem("userId");
+
+  useEffect(() => {
+    dispatch(fetchUserData());
+  }, [dispatch]);
+
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  const handleActivateClick = async () => {
+    const res = await loadRazorpayScript();
+    if (!res) {
+      return;
+    }
+    try {
+      const { data: order } = await axios.post(
+        `${import.meta.env.VITE_APP_API_BASE_URL}createOrder`,
+        {
+          amount: `${import.meta.env.VITE_APP_API_BASE_URL}`,
+          currency: "INR",
+        }
+      );
+
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        amount: order.amount,
+        currency: order.currency,
+        name: "MyApp",
+        description: "Active Account ",
+        order_id: order.id,
+        handler: async function (response) {
+          const verifyRes = await axios.patch(
+            `${import.meta.env.VITE_APP_API_BASE_URL}api/user/activate`,
+            {
+              userId: userData?._id,
+              isActivate: true,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          if (verifyRes) {
+            dispatch(fetchUserData());
+            toast.success("user activate", {
+              position: "top-right",
+            });
+          } else {
+            toast.success("user InActive", {
+              position: "top-right",
+            });
+          }
+        },
+        prefill: {
+          name: userData?.name || "Guest User",
+          email: userData?.email || "",
+          contact: userData?.phone || "",
+        },
+        theme: {
+          color: "#3399cc",
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (err) {
+      console.error("Payment Error:", err);
+      toast.error(err, {
+        position: "top-right",
+      });
+    }
+  };
+
+  const copyReferral = async () => {
+    if (!userData?.referralCode) return;
+    try {
+      await navigator.clipboard.writeText(userData.referralCode);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
+  };
+
+  const handleInst = () => {
+    if (!userData?.referralCode) {
+      toast.error("refer code not available", {
+        position: "top-right",
+      });
+      return;
+    }
+    const websiteUrl = `${import.meta.env.VITE_WEBSITE_URL}`;
+    const referralLink = `${websiteUrl}?ref=${userData.referralCode}`;
+    const message = encodeURIComponent(
+      `Hey! Join this website and use my referral code. ${referralLink}`
+    );
+    const instagramUrl = `https://www.instagram.com/direct/inbox/?text=${message}`;
+
+    window.open(instagramUrl, "_blank");
+  };
+
+  const withdrawReq = async () => {
+    if (!userData?.upiId) {
+      toast.error("First Add Upi Id In Edit Profile", {
+        position: "top-right",
+      });
+      return;
+    }
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_APP_API_BASE_URL}api/user/withdraw`,
+        {
+          userId,
+          amount: Number(amount),
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      toast.success("Withdraw Request Sent", {
+        position: "top-right",
+      });
+      setShowModal(false);
+      setAmount("");
+    } catch (error) {
+      setMessage(
+        error.response?.data?.message || "Something went wrong. Try again."
+      );
+      toast.error(
+        error.response?.data?.message || "Something went wrong. Try again.",
+        {
+          position: "top-right",
+        }
+      );
+    }
+  };
 
   return (
     <section className="w-full pt-16">
@@ -24,70 +172,16 @@ export default function Apply() {
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
         <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-3xl">
           <h1 className="text-2xl font-bold text-center mb-4">
-            Refer & Earn – Har Friend Pe ₹300 Kamao! 💰
+            Refer & Earn – Har Friend Pe ₹200 Kamao! 💰
           </h1>
           <p className="text-center text-gray-600 mb-4">
-            Join karo, ₹100 activate fee do, aur apna referral link share karo!
-            Jab koi join kare aur payment kare → payment karo!
+            Join karo, ₹200 activate fee do, aur apna referral link share karo!
           </p>
-          <button className="w-full bg-blue-500 text-white py-2 rounded-lg mb-6">
-            Start Now
-          </button>
 
-          <h2 className="text-xl font-semibold text-center mb-4">
-            How it Works
-          </h2>
-
-          {/* 3-column steps with real icons */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 text-center">
-            {/* 1. Google Login */}
-            <div>
-              <div
-                className=" rounded-full inline-flex items-center justify-center mb-3 mx-auto"
-                style={{ width: 64, height: 64 }}
-              >
-                <img src={google} alt="Google" className="w-12 h-12" />
-              </div>
-              <p className="text-gray-800">
-                <strong>Login / Sign Up</strong>
-                <br />
-                Google se 1-click login karo.
-              </p>
-            </div>
-
-            {/* 2. Activate Account (Payment) */}
-            <div>
-              <div
-                className="  inline-flex items-center justify-center mb-3 mx-auto"
-                style={{ width: 64, height: 64 }}
-              >
-                <img src={account} alt="Payment" className="w-12 h-12" />
-              </div>
-              <p className="text-gray-800">
-                <strong>Activate Account ₹100</strong>
-                <br />
-                Payment karo hi referral link unlock ho jata hai.
-              </p>
-            </div>
-
-            {/* 3. Share & Earn */}
-            <div>
-              <div
-                className="  rounded-full inline-flex items-center justify-center mb-3 mx-auto "
-                style={{ width: 64, height: 64 }}
-              >
-                <img src={share} alt="Share" className="w-12 h-12" />
-              </div>
-              <p className="text-gray-800">
-                <strong>Share & Earn</strong>
-                <br />
-                Apna link WhatsApp, Instagram par share karo. Har payment par
-                ₹300 earn karo.
-              </p>
-            </div>
-          </div>
-
-          <button className="w-full bg-blue-500 text-white py-2 rounded-lg mb-6">
+          <button
+            onClick={handleActivateClick}
+            className="w-full bg-blue-500 text-white py-2 rounded-lg mb-6"
+          >
             Activate & Get Link
           </button>
 
@@ -98,19 +192,23 @@ export default function Apply() {
             <div>
               <p>
                 Wallet Balance <br />
-                <span className="font-bold">₹1450</span>
+                <span className="font-bold">{userData?.walletAmount}</span>
               </p>
             </div>
             <div>
               <p>
                 Active Referrals <br />
-                <span className="font-bold">12</span>
+                <span className="font-bold">
+                  {userData?.activeReferralsCount}
+                </span>
               </p>
             </div>
             <div>
               <p>
                 Pending Referrals <br />
-                <span className="font-bold">3</span>
+                <span className="font-bold">
+                  {userData?.inactiveReferralsCount}
+                </span>
               </p>
             </div>
             <div>
@@ -120,11 +218,32 @@ export default function Apply() {
               </p>
             </div>
           </div>
-
           <div className="text-center mb-4">
-            <p className="font-medium">fatatrefer.in/?tee#aa12</p>
+            {userData?.isActivate && (
+              <p className="font-medium">
+                REFERRAL CODE : {userData?.referralCode}
+              </p>
+            )}
             <div className="flex justify-center space-x-4 m-2">
-              <button className="flex items-center gap-2 bg-green-500 text-white py-1 px-3 rounded">
+              <button
+                className="flex items-center gap-2 bg-green-500 text-white py-1 px-3 rounded"
+                onClick={() => {
+                  if (!userData?.referralCode) {
+                    toast.error("refer code not available", {
+                      position: "top-right",
+                    });
+                    return;
+                  }
+                  const websiteUrl = `${import.meta.env.VITE_WEBSITE_URL}`;
+                  const referralLink = `${websiteUrl}?ref=${userData.referralCode}`;
+                  const message = `Join this website using my referral link: ${referralLink}`;
+
+                  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(
+                    message
+                  )}`;
+                  window.open(whatsappUrl, "_blank");
+                }}
+              >
                 <img
                   src="https://cdn-icons-png.flaticon.com/512/733/733585.png"
                   alt="WhatsApp"
@@ -132,15 +251,21 @@ export default function Apply() {
                 />
                 WhatsApp
               </button>
-              <button className="flex items-center gap-2 bg-gray-200 text-gray-800 py-1 px-3 rounded">
+              <button
+                onClick={copyReferral}
+                className="flex items-center gap-2 bg-gray-200 text-gray-800 py-1 px-3 rounded"
+              >
                 <img
                   src="https://cdn-icons-png.flaticon.com/512/60/60990.png"
                   alt="Copy"
                   className="w-4 h-4"
                 />
-                Copy
+                {copied ? "Copied" : "Copy"}
               </button>
-              <button className="flex items-center gap-2 bg-pink-500 text-white py-1 px-3 rounded">
+              <button
+                onClick={handleInst}
+                className="flex items-center gap-2 bg-pink-500 text-white py-1 px-3 rounded"
+              >
                 <img
                   src="https://cdn-icons-png.flaticon.com/512/1384/1384063.png"
                   alt="Instagram"
@@ -151,12 +276,63 @@ export default function Apply() {
             </div>
           </div>
 
-          <button className="w-full bg-blue-500 text-white py-2 rounded-lg mb-4">
+          <button
+            onClick={() => setShowModal(true)}
+            className="w-full bg-blue-500 text-white py-2 rounded-lg mb-4"
+          >
             Withdraw
           </button>
-          <p className="text-center text-gray-600">Already 50,000+</p>
+          <p className="text-center text-gray-600">
+            Total Withdraw : {userData?.totalAmount}
+          </p>
         </div>
       </div>
+      {showModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
+          <div className="bg-white rounded-xl shadow-lg p-6 w-11/12 max-w-md relative">
+            <h2 className="text-xl font-semibold mb-4 text-gray-800 text-center">
+              Withdraw Amount
+            </h2>
+            <label>Availble Amount</label>
+            <input
+              type="text"
+              placeholder="Enter amount"
+              value={userData?.walletAmount}
+              readOnly
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-4 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+            <label>Amount</label>
+            <input
+              type="text"
+              placeholder="Enter amount"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-4 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+
+            <div className="flex justify-between">
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={withdrawReq}
+                disabled={!amount}
+                className={`px-4 py-2 rounded-lg text-white font-semibold transition ${
+                  amount
+                    ? "bg-blue-500 hover:bg-blue-600"
+                    : "bg-blue-300 cursor-not-allowed"
+                }`}
+              >
+                Confirm Withdraw
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

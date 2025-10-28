@@ -3,81 +3,17 @@ import { useNavigate } from "react-router-dom";
 import { FiShare2 } from "react-icons/fi";
 import account from "../../assets/account.png";
 import share from "../../assets/share.png";
-import google from "../../assets/google.jpg";
+import googleImg from "../../assets/google.png"
 import bgImg from "../../assets/homeback.jpg";
 
 const AboutSection = () => {
   const navigate = useNavigate();
 
-  // const navigate=useNavigate()
-  //    const handleSignUp=()=>{
-  //       navigate('/apply')
-  // }
-
   const handleStart = useCallback(() => {
     navigate("/signup");
   }, [navigate]);
   return (
-    //             <section className="w-full bg-white py-16">
-    //               <div className="max-w-7xl mx-auto my-2 px-6 flex justify-end cursor-pointer gap-10 items-center">
-    //       <button
-    //         className="border font-bold rounded-md px-6 py-2 cursor-pointer text-white bg-[#0C3B57] flex items-center gap-2"
-    //         onClick={() => {
-    //           if (navigator.share) {
-    //             navigator
-    //               .share({
-    //                 title: "Website",
-    //                 text: "Check this out!",
-    //                 url: window.location.href,
-    //               })
-    //               .then(() => console.log("Thanks for sharing!"))
-    //               .catch((err) => console.error("Error sharing:", err));
-    //           } else {
-    //             alert("Sharing not supported in this browser.");
-    //           }
-    //         }}
-    //       >
-    //         <FiShare2 size={18} />
-    //         <span>Share</span>
-    //       </button>
-    //     </div>
-
-    //                   <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
-    //                         <div className="flex justify-center md:justify-end">
-    //                               <img
-    //                                     src="https://images.pexels.com/photos/8297478/pexels-photo-8297478.jpeg"
-    //                                     alt="Team working"
-    //                                     className="w-full h-auto rounded-lg shadow-lg"
-    //                               />
-    //                         </div>
-    //                         <div>
-    //                               <p className="text-[#0C3B57] text-xl font-semibold mb-2">
-    //                                     About Our Company
-    //                               </p>
-    //                               <h2 className="text-4xl font-bold text-gray-900 leading-snug mb-6">
-    //                                     Building a Brighter financial <br />
-    //                                     Future & Good Support.
-    //                               </h2>
-    //                               <p className="text-gray-600 mb-4">
-    //                                     Lorem ipsum dolor sit amet, consectetur
-    //                                     adipisicing elit, oeiusmod tempor incididunt
-    //                                     ut labore et dolore magna aliqua. Ut enim
-    //                                     minim veniam, quis nostrud exercitation
-    //                                     ullamco laboris nisi ut aliquip ex ea
-    //                                     commodo consequat.
-    //                               </p>
-    //                               <p className="text-gray-600 mb-6">
-    //                                     Lorem ipsum dolor sit amet, consectetur
-    //                                     adipisicing elit, oeiusmod tempor incididunt
-    //                                     ut labore et dolore magna aliqu.
-    //                               </p>
-    //                               {/* <button
-    //                               className="bg-gray-900 text-white px-6 py-3 rounded-md font-semibold hover:bg-[#0C3B57] transition">
-    //                                     APPLY FOR LOAN
-    //                               </button> */}
-    //                         </div>
-    //                   </div>
-    //             </section>
+    
     <section className="w-full pt-16">
       <div className="flex  justify-center ">
         <img src={bgImg} className="w-full h-full object-contain" />
@@ -106,7 +42,7 @@ const AboutSection = () => {
                 className=" rounded-full inline-flex items-center justify-center mb-3 mx-auto"
                 style={{ width: 64, height: 64 }}
               >
-                <img src={google} alt="Google" className="w-12 h-12" />
+                <img src={googleImg} alt="Google"/>
               </div>
               <p className="text-gray-800">
                 <strong>Login / Sign Up</strong>
@@ -115,13 +51,12 @@ const AboutSection = () => {
               </p>
             </div>
 
-            {/* 2. Activate Account (Payment) */}
             <div>
               <div
                 className="  inline-flex items-center justify-center mb-3 mx-auto"
                 style={{ width: 64, height: 64 }}
               >
-                <img src={account} alt="Payment" className="w-12 h-12" />
+                <img src={account} alt="Payment"   />
               </div>
               <p className="text-gray-800">
                 <strong>Activate Account ₹100</strong>
@@ -136,7 +71,7 @@ const AboutSection = () => {
                 className="  rounded-full inline-flex items-center justify-center mb-3 mx-auto "
                 style={{ width: 64, height: 64 }}
               >
-                <img src={share} alt="Share" className="w-12 h-12" />
+                <img src={share} alt="Share"  />
               </div>
               <p className="text-gray-800">
                 <strong>Share & Earn</strong>

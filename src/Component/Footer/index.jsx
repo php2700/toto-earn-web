@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import logo1 from "../../assets/logo1.png";
+import logo1 from "../../assets/toto.png";
 
 function Footer() {
   const navigte = useNavigate();
@@ -72,7 +72,6 @@ function Footer() {
               >
                 Privacy Policy
               </li>
-             
             </ul>
           </div>
           <div>

@@ -6,10 +6,13 @@ import { useGoogleLogin } from "@react-oauth/google";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../Context";
+import { useDispatch } from "react-redux";
+import { updateToken } from "../Store/tokenSlice";
 
 const Signup = () => {
   const navigate = useNavigate();
-  const { setLoanToken } = useContext(UserContext);
+  const dispatch = useDispatch();
+  const { setTotoEarnToken } = useContext(UserContext);
   const [referralCode, setReferralCode] = useState("");
   const [showModal, setShowModal] = useState(false);
 
@@ -24,8 +27,9 @@ const Signup = () => {
           accessToken: tokenResponse?.access_token,
         })
         .then((res) => {
-          setLoanToken(res?.data?.token);
-          localStorage.setItem("loanToken", res?.data?.token);
+          setTotoEarnToken(res?.data?.token);
+          dispatch(updateToken(res?.data?.token));
+          localStorage.setItem("totoToken", res?.data?.token);
           localStorage.setItem("userId", res.data?.user?._id);
           if (!res?.data?.isAlreadyCreated) {
             setShowModal(true);
@@ -44,9 +48,6 @@ const Signup = () => {
 
   const handleSubmit = useCallback(() => {
     const userId = localStorage.getItem("userId");
-    console.log("Referral code bhej rahe:", referralCode);
-console.log("User ID bhej rahe:", localStorage.getItem("userId"));
-
     setShowModal(false);
     axios
       .patch(
@@ -57,7 +58,7 @@ console.log("User ID bhej rahe:", localStorage.getItem("userId"));
         }
       )
       .then((res) => {
-        console.log(`res;- ${res}`)
+        console.log(`res;- ${res}`);
         navigate("/apply");
       })
       .catch((error) => {
@@ -68,7 +69,6 @@ console.log("User ID bhej rahe:", localStorage.getItem("userId"));
   return (
     <section className="pt-16 w-full">
       <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-
         <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl p-10 border border-gray-100 transform transition hover:shadow-3xl font-[Poppins]">
           {/* Heading */}
           <h2 className="text-3xl font-extrabold text-center text-[#0C3B57] mb-8 tracking-wide font-[Montserrat]">
@@ -125,5 +125,3 @@ console.log("User ID bhej rahe:", localStorage.getItem("userId"));
 };
 
 export default Signup;
-
-

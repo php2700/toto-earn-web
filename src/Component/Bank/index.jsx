@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function AddBankDetail() {
   const navigate = useNavigate();
-  const token = localStorage.getItem("loanToken");
+  const token = localStorage.getItem("totoToken");
   const userId = localStorage.getItem("userId");
   const [formData, setFormData] = useState({
     accountHolderName: "",

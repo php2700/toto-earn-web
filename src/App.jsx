@@ -17,10 +17,11 @@ import { Applied } from "./Component/AppliedList";
 import AddBankDetail from "./Component/Bank";
 import { TermCondition } from "./Component/rules/term-condition";
 import { PrivacyPolicy } from "./Component/rules/privacy-policy";
+import { Edit } from "./Component/Edit";
 
 function App() {
   const PrivateRoute = ({ children }) => {
-    const token = localStorage.getItem("loanToken");
+    const token = localStorage.getItem("totoToken");
 
     if (!token) {
       return <Navigate to="/signup" replace />;
@@ -45,6 +46,7 @@ function App() {
             
             <Route path="/referrals" element={<PrivateRoute><Referral /></PrivateRoute>} />
             <Route path="/applied-list" element={<PrivateRoute><Applied /></PrivateRoute>} />
+            <Route path="/edit" element={<PrivateRoute><Edit /></PrivateRoute>} />
             <Route path='/add-bank-detail' element={<PrivateRoute><AddBankDetail/></PrivateRoute>} />
             <Route path='/term-condition' element={<TermCondition />} />
             <Route path='/privacy-policy' element={<PrivacyPolicy />} />

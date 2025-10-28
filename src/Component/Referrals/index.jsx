@@ -1,76 +1,71 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchUserData } from "../Store/userSlice";
 
 export const Referral = () => {
-  const [referrals, setReferrals] = useState([]);
-  const [amount, setAmount] = useState("");
-  const token = localStorage.getItem("loanToken");
-  const userId = localStorage.getItem("userId");
-
-  const getAmount = async () => {
-    try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_APP_API_BASE_URL}api/admin/refer-amount`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setAmount(response.data.amount);
-      console.log(response.data);
-    } catch (err) {
-      setError(err.response?.data?.message || "Something went wrong");
-    }
-  };
+  const dispatch = useDispatch();
+  const { userData } = useSelector((state) => state.user);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    getAmount();
-  }, []);
+    dispatch(fetchUserData());
+  }, [dispatch]);
 
-  useEffect(() => {
-    if (!token || !userId) return;
-
-axios
-axios
-  .get(`${import.meta.env.VITE_APP_API_BASE_URL}api/user/referrals/${userId}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  })
-  .then((res) => {
-    console.log(res.data); // Check structure
-    setReferrals(Array.isArray(res.data) ? res.data : res.data.referrals || []);
-  })
-  .catch((err) => console.error(err));
-
-
-  }, [token, userId]);
+  const filteredReferrals =
+    userData?.referredUsersDetails?.filter((referral) =>
+      referral.name.toLowerCase().includes(searchTerm.toLowerCase())
+    ) || [];
 
   return (
-    <div className="p-4 mt-20">
-      <h2 className="text-2xl font-semibold mb-4">Referral List</h2>
-      <div className="overflow-x-auto">
-        <table className="min-w-full border border-gray-200 rounded-lg">
-          <thead className="bg-gray-100">
+    <div className="container mx-auto px-4 py-8 mt-16">
+      <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
+        🌟 Referral List
+      </h2>
+
+      {/* Search Bar */}
+      <div className="flex justify-end mb-4">
+        <input
+          type="text"
+          placeholder="Search by name..."
+          className="w-64 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
+      <div className="overflow-x-auto shadow-lg rounded-lg border border-gray-200">
+        <table className="min-w-full text-sm bg-white rounded-lg">
+          <thead className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
             <tr>
-              <th className="py-2 px-4 text-left border-b border-gray-200">
-                S.No
-              </th>
-              <th className="py-2 px-4 text-left border-b border-gray-200">
-                Name
-              </th>
-              <th className="py-2 px-4 text-left border-b border-gray-200">
-                Email
-              </th>
+              <th className="py-3 px-4 text-left font-semibold">S.No</th>
+              <th className="py-3 px-4 text-left font-semibold">Name</th>
+              <th className="py-3 px-4 text-left font-semibold">Email</th>
+              <th className="py-3 px-4 text-left font-semibold">Activated</th>
             </tr>
           </thead>
-          {referrals?.length ? (
+
+          {filteredReferrals.length > 0 ? (
             <tbody>
-              {referrals.map((referral, index) => (
-                <tr key={index} className="hover:bg-gray-50">
-                  <td className="py-2 px-4 border-b border-gray-200">
-                    {index + 1}
-                  </td>
-                  <td className="py-2 px-4 border-b border-gray-200">
+              {filteredReferrals.map((referral, index) => (
+                <tr
+                  key={index}
+                  className="border-b hover:bg-blue-50 transition duration-200"
+                >
+                  <td className="py-3 px-4">{index + 1}</td>
+                  <td className="py-3 px-4 font-medium text-gray-800">
                     {referral.name}
                   </td>
-                  <td className="py-2 px-4 border-b border-gray-200">
-                    {referral.email}
+                  <td className="py-3 px-4 text-gray-600">{referral.email}</td>
+                  <td className="py-3 px-4">
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                        referral.isActivate
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-700"
+                      }`}
+                    >
+                      {referral.isActivate ? "Active" : "Inactive"}
+                    </span>
                   </td>
                 </tr>
               ))}
@@ -78,36 +73,32 @@ axios
           ) : (
             <tbody>
               <tr>
-                <td
-                  colSpan={2}
-                  className="py-2 px-4 border-b border-gray-200 text-center w-full text-gray-500"
-                >
-                  No Record Found
+                <td colSpan={4} className="py-8 text-center text-gray-500">
+                  <div className="flex flex-col items-center justify-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-10 w-10 text-gray-400 mb-2"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 13h6m-3-3v6m9 1a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    <p className="text-gray-500 font-medium">
+                      No referral records found
+                    </p>
+                  </div>
                 </td>
               </tr>
             </tbody>
           )}
         </table>
-
-        {referrals?.length > 0 && (
-          <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg shadow-md text-center">
-            <p className="text-lg font-semibold text-gray-700">
-              🎉 Your Total Referral Bonus:{" "}
-              <span className="text-blue-600 text-xl font-bold">
-                ₹ {amount * referrals.length}
-              </span>
-            </p>
-            <p className="text-sm text-gray-600 mt-1">
-              You will receive this amount in your account within{" "}
-              <span className="font-medium text-gray-800">7 days</span>.
-            </p>
-          </div>
-        )}
       </div>
     </div>
   );
 };
-
-
-
-
