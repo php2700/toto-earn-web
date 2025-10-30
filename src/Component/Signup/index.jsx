@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { Home, Phone, Mail } from "lucide-react";
 import bgImg from "../../assets/h1_hero.jpg";
 import { FcGoogle } from "react-icons/fc";
@@ -20,29 +20,48 @@ const Signup = () => {
     setReferralCode(e.target.value);
   }, []);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const refCode = params.get("ref");
+
+    if (refCode) {
+      localStorage.setItem("referralCode", refCode);
+    }
+  }, []);
+
   const handleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
-      await axios
-        .post(`${import.meta.env.VITE_APP_API_BASE_URL}api/user/google-login`, {
-          accessToken: tokenResponse?.access_token,
-        })
-        .then((res) => {
-          setTotoEarnToken(res?.data?.token);
-          dispatch(updateToken(res?.data?.token));
-          localStorage.setItem("totoToken", res?.data?.token);
-          localStorage.setItem("userId", res.data?.user?._id);
-          if (!res?.data?.isAlreadyCreated) {
-            setShowModal(true);
-          } else {
-            navigate("/apply");
-          }
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    },
-    onError: () => {
-      console.log("login failed");
+      try {
+        const res = await axios.post(
+          `${import.meta.env.VITE_APP_API_BASE_URL}api/user/google-login`,
+          { accessToken: tokenResponse?.access_token }
+        );
+
+        setTotoEarnToken(res?.data?.token);
+        dispatch(updateToken(res?.data?.token));
+        localStorage.setItem("totoToken", res?.data?.token);
+        localStorage.setItem("userId", res.data?.user?._id);
+
+        const storedRefCode = localStorage.getItem("referralCode");
+
+        if (!res?.data?.isAlreadyCreated && storedRefCode) {
+          await axios.patch(
+            `${import.meta.env.VITE_APP_API_BASE_URL}api/user/update-refferBy`,
+            {
+              _id: res.data?.user?._id,
+              referredBy: storedRefCode,
+            }
+          );
+          localStorage.removeItem("referralCode");
+          navigate("/apply");
+        } else if (!res?.data?.isAlreadyCreated) {
+          setShowModal(true);
+        } else {
+          navigate("/apply");
+        }
+      } catch (error) {
+        console.log(error);
+      }
     },
   });
 

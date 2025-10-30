@@ -113,7 +113,7 @@ export default function Apply() {
       return;
     }
     const websiteUrl = `${import.meta.env.VITE_WEBSITE_URL}`;
-    const referralLink = `${websiteUrl}?ref=${userData.referralCode}`;
+    const referralLink = `${websiteUrl}/signup?ref=${userData.referralCode}`;
     const message = encodeURIComponent(
       `Hey! Join this website and use my referral code. ${referralLink}`
     );
@@ -178,12 +178,18 @@ export default function Apply() {
             Join karo, ₹200 activate fee do, aur apna referral link share karo!
           </p>
 
-          <button
-            onClick={handleActivateClick}
-            className="w-full bg-blue-500 text-white py-2 rounded-lg mb-6"
-          >
-            Activate & Get Link
-          </button>
+          {userData?.isActivate ? (
+            <button className="w-full bg-blue-500 text-white py-2 rounded-lg mb-6">
+              Active User
+            </button>
+          ) : (
+            <button
+              onClick={handleActivateClick}
+              className="w-full bg-blue-500 text-white py-2 rounded-lg mb-6"
+            >
+              Activate & Get Link
+            </button>
+          )}
 
           <h2 className="text-xl font-semibold text-center mb-4">
             Wallet & Referral Overview
@@ -235,7 +241,7 @@ export default function Apply() {
                     return;
                   }
                   const websiteUrl = `${import.meta.env.VITE_WEBSITE_URL}`;
-                  const referralLink = `${websiteUrl}?ref=${userData.referralCode}`;
+                  const referralLink = `${websiteUrl}/signup?ref=${userData.referralCode}`;
                   const message = `Join this website using my referral link: ${referralLink}`;
 
                   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(
@@ -278,10 +284,16 @@ export default function Apply() {
 
           <button
             onClick={() => setShowModal(true)}
-            className="w-full bg-blue-500 text-white py-2 rounded-lg mb-4"
+            disabled={userData?.walletAmount <= 1200}
+            className={`w-full py-2 rounded-lg mb-4 text-white ${
+              userData?.walletAmount > 1200
+                ? "bg-blue-500 hover:bg-blue-600 cursor-pointer"
+                : "bg-gray-400 cursor-not-allowed"
+            }`}
           >
             Withdraw
           </button>
+
           <p className="text-center text-gray-600">
             Total Withdraw : {userData?.totalAmount}
           </p>
