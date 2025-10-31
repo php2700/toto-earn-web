@@ -12,6 +12,10 @@ const AboutSection = () => {
   const handleStart = useCallback(() => {
     navigate("/signup");
   }, [navigate]);
+
+  const handleView=()=>{
+    navigate('/upcoming-brand')
+  }
   return (
     
     <section className="w-full pt-16">
@@ -28,7 +32,7 @@ const AboutSection = () => {
             Join karo, ₹100 activate fee do, aur apna referral link share karo!
             Jab koi join kare aur payment kare → payment karo!
           </p>
-          <button className="w-full bg-blue-500 text-white py-2 rounded-lg mb-6">
+          <button onClick={handleView} className="w-full bg-blue-500 text-white py-2 rounded-lg mb-6">
             coming Up Indian brand
           </button>
 

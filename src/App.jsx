@@ -18,6 +18,7 @@ import AddBankDetail from "./Component/Bank";
 import { TermCondition } from "./Component/rules/term-condition";
 import { PrivacyPolicy } from "./Component/rules/privacy-policy";
 import { Edit } from "./Component/Edit";
+import Upcoming from "./Component/upcoming";
 
 function App() {
   const PrivateRoute = ({ children }) => {
@@ -42,6 +43,7 @@ function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/faq" element={<Faq />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/upcoming-brand" element={<Upcoming />} />
             <Route path="/apply" element={<PrivateRoute><Apply /></PrivateRoute>} />
             
             <Route path="/referrals" element={<PrivateRoute><Referral /></PrivateRoute>} />
