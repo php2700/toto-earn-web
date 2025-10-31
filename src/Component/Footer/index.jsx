@@ -18,7 +18,7 @@ function Footer() {
       <div className="px-6 md:px-20 py-10">
         <nav className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 max-w-6xl mx-auto">
           <div>
-            <div className="h-12 ">
+            <div className="h-24 ">
               <img src={logo1} className="h-full object-contain " />
             </div>
 
@@ -36,12 +36,12 @@ function Footer() {
               >
                 Welcome
               </li>
-              <li
+              {/* <li
                 onClick={() => handleUrl("services")}
                 className="hover:text-white cursor-pointer"
               >
                 Our Solutions
-              </li>
+              </li> */}
               <li
                 onClick={() => handleUrl("faq")}
                 className="hover:text-white cursor-pointer"

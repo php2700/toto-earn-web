@@ -3,11 +3,11 @@ export const PrivacyPolicy = () => {
     <div className="min-h-screen bg-gray-50 py-20 px-6 md:px-16 lg:px-32">
       <div className="bg-white shadow-md rounded-2xl p-8">
         <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">
-          Privacy Policy – Fatafat Loan
+          Privacy Policy – Toto Earn
         </h1>
 
         <p className="text-gray-600 mb-4">
-          At Fatafat Loan, we are committed to protecting the privacy and
+          At Toto Earn, we are committed to protecting the privacy and
           personal information of our users. By using our services, you agree to
           the practices described in this Privacy Policy.
         </p>
@@ -57,7 +57,7 @@ export const PrivacyPolicy = () => {
           5. Your Rights
         </h2>
         <p className="text-gray-600 mb-4">
-          Fatafat Loan may use your contact details to communicate loan updates,
+          Toto Earn may use your contact details to communicate loan updates,
           repayment reminders, promotional offers, or important policy changes.
           Users who wish to stop receiving promotional messages may opt out by
           contacting customer support.

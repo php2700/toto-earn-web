@@ -4,6 +4,9 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserData } from "../Store/userSlice";
 import { toast } from "react-toastify";
+import account from "../../assets/account.png";
+import googleImg from "../../assets/google.png";
+import share from "../../assets/share.png";
 
 export default function Apply() {
   const dispatch = useDispatch();
@@ -38,7 +41,7 @@ export default function Apply() {
       const { data: order } = await axios.post(
         `${import.meta.env.VITE_APP_API_BASE_URL}createOrder`,
         {
-          amount: `${import.meta.env.VITE_APP_API_BASE_URL}`,
+          amount: `${import.meta.env.VITE_APP_AMOUNT}`,
           currency: "INR",
         }
       );
@@ -175,7 +178,11 @@ export default function Apply() {
             Refer & Earn – Har Friend Pe ₹200 Kamao! 💰
           </h1>
           <p className="text-center text-gray-600 mb-4">
-            Join karo, ₹200 activate fee do, aur apna referral link share karo!
+            Refer & Earn – Earn ₹200 for Every Friend! 💰 Join now, pay ₹200
+            activation fee (only once) and get ₹100 signup bonus instantly!
+            Share your referral link — every time your friend joins and
+            activates, you earn ₹200 instantly in your account! 💸 One-time
+            payment → Lifetime free earning opportunity!
           </p>
 
           {userData?.isActivate ? (
@@ -192,6 +199,55 @@ export default function Apply() {
           )}
 
           <h2 className="text-xl font-semibold text-center mb-4">
+            How it Works
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 text-center">
+            <div>
+              <div
+                className=" rounded-full inline-flex items-center justify-center mb-3 mx-auto"
+                style={{ width: 64, height: 64 }}
+              >
+                <img src={googleImg} alt="Google" />
+              </div>
+              <p className="text-gray-800">
+                <strong>Login / Sign Up</strong>
+                <br />
+                Google se 1-click login karo.
+              </p>
+            </div>
+
+            <div>
+              <div
+                className="  inline-flex items-center justify-center mb-3 mx-auto"
+                style={{ width: 64, height: 64 }}
+              >
+                <img src={account} alt="Payment" />
+              </div>
+              <p className="text-gray-800">
+                <strong>Activate Account ₹100</strong>
+                <br />
+                Payment karte hi referral link unlock ho jata hai.
+              </p>
+            </div>
+
+            {/* 3. Share & Earn */}
+            <div>
+              <div
+                className="  rounded-full inline-flex items-center justify-center mb-3 mx-auto "
+                style={{ width: 64, height: 64 }}
+              >
+                <img src={share} alt="Share" />
+              </div>
+              <p className="text-gray-800">
+                <strong>Share & Earn</strong>
+                <br />
+                Apna link WhatsApp, Instagram par share karo. Har payment par
+                ₹200 earn karo.
+              </p>
+            </div>
+          </div>
+
+          <h2 className="w-full bg-blue-500 text-center text-semibold text-white py-2 rounded-lg mb-6">
             Wallet & Referral Overview
           </h2>
           <div className="grid grid-cols-2 gap-4 text-center mb-4">

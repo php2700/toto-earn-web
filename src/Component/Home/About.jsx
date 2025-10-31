@@ -26,14 +26,18 @@ const AboutSection = () => {
       <div className="flex flex-col items-center justify-center bg-gray-100 p-10">
         <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-3xl">
           <h1 className="text-2xl font-bold text-center mb-4">
-            Refer & Earn – Har Friend Pe ₹300 Kamao! 💰
+            Refer & Earn – Har Friend Pe ₹200 Kamao! 💰
           </h1>
           <p className="text-center text-gray-600 mb-4">
-            Join karo, ₹100 activate fee do, aur apna referral link share karo!
-            Jab koi join kare aur payment kare → payment karo!
+            Refer & Earn – Earn ₹200 for Every Friend! 💰
+ 
+Join now, pay ₹200 activation fee (only once) and get ₹100 signup bonus instantly!
+Share your referral link — every time your friend joins and activates, you earn ₹200 instantly in your account!
+💸 One-time payment → Lifetime free earning opportunity!
           </p>
           <button onClick={handleView} className="w-full bg-blue-500 text-white py-2 rounded-lg mb-6">
-            coming Up Indian brand
+            
+            Coming Up Indian brand
           </button>
 
           <h2 className="text-xl font-semibold text-center mb-4">
@@ -65,7 +69,7 @@ const AboutSection = () => {
               <p className="text-gray-800">
                 <strong>Activate Account ₹100</strong>
                 <br />
-                Payment karo hi referral link unlock ho jata hai.
+                Payment karte hi referral link unlock ho jata hai.
               </p>
             </div>
 
@@ -81,7 +85,7 @@ const AboutSection = () => {
                 <strong>Share & Earn</strong>
                 <br />
                 Apna link WhatsApp, Instagram par share karo. Har payment par
-                ₹300 earn karo.
+                ₹200 earn karo.
               </p>
             </div>
           </div>
