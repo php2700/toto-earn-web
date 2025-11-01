@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { FiShare2 } from "react-icons/fi";
 import account from "../../assets/account.png";
 import share from "../../assets/share.png";
-import googleImg from "../../assets/google.png"
+import googleImg from "../../assets/google.png";
 import bgImg from "../../assets/homeback.jpg";
 
 const AboutSection = () => {
@@ -13,11 +13,10 @@ const AboutSection = () => {
     navigate("/signup");
   }, [navigate]);
 
-  const handleView=()=>{
-    navigate('/upcoming-brand')
-  }
+  const handleView = () => {
+    navigate("/upcoming-brand");
+  };
   return (
-    
     <section className="w-full pt-16">
       <div className="flex  justify-center ">
         <img src={bgImg} className="w-full h-full object-contain" />
@@ -29,14 +28,16 @@ const AboutSection = () => {
             Refer & Earn – Har Friend Pe ₹200 Kamao! 💰
           </h1>
           <p className="text-center text-gray-600 mb-4">
-            Refer & Earn – Earn ₹200 for Every Friend! 💰
- 
-Join now, pay ₹200 activation fee (only once) and get ₹100 signup bonus instantly!
-Share your referral link — every time your friend joins and activates, you earn ₹200 instantly in your account!
-💸 One-time payment → Lifetime free earning opportunity!
+            Refer & Earn – Earn ₹200 for Every Friend! 💰 Join now, pay ₹200
+            activation fee (only once) and get ₹100 signup bonus instantly!
+            Share your referral link — every time your friend joins and
+            activates, you earn ₹200 instantly in your account! 💸 One-time
+            payment → Lifetime free earning opportunity!
           </p>
-          <button onClick={handleView} className="w-full bg-blue-500 text-white py-2 rounded-lg mb-6">
-            
+          <button
+            onClick={handleView}
+            className="w-full bg-blue-500 text-white py-2 rounded-lg mb-6"
+          >
             Coming Up Indian brand
           </button>
 
@@ -50,12 +51,12 @@ Share your referral link — every time your friend joins and activates, you ear
                 className=" rounded-full inline-flex items-center justify-center mb-3 mx-auto"
                 style={{ width: 64, height: 64 }}
               >
-                <img src={googleImg} alt="Google"/>
+                <img src={googleImg} alt="Google" />
               </div>
               <p className="text-gray-800">
                 <strong>Login / Sign Up</strong>
                 <br />
-                Google se 1-click login karo.
+                Login instantly with 1-click Google Login.
               </p>
             </div>
 
@@ -64,12 +65,13 @@ Share your referral link — every time your friend joins and activates, you ear
                 className="  inline-flex items-center justify-center mb-3 mx-auto"
                 style={{ width: 64, height: 64 }}
               >
-                <img src={account} alt="Payment"   />
+                <img src={account} alt="Payment" />
               </div>
               <p className="text-gray-800">
                 <strong>Activate Account ₹100</strong>
                 <br />
-                Payment karte hi referral link unlock ho jata hai.
+                Once the payment is completed, your referral link will be
+                unlocked instantly.
               </p>
             </div>
 
@@ -79,13 +81,14 @@ Share your referral link — every time your friend joins and activates, you ear
                 className="  rounded-full inline-flex items-center justify-center mb-3 mx-auto "
                 style={{ width: 64, height: 64 }}
               >
-                <img src={share} alt="Share"  />
+                <img src={share} alt="Share" />
               </div>
               <p className="text-gray-800">
                 <strong>Share & Earn</strong>
                 <br />
-                Apna link WhatsApp, Instagram par share karo. Har payment par
-                ₹200 earn karo.
+                Share your referral link on WhatsApp, Instagram, and other
+                social platforms. Earn ₹200 for every successful payment made
+                through your link!
               </p>
             </div>
           </div>

@@ -212,7 +212,7 @@ export default function Apply() {
               <p className="text-gray-800">
                 <strong>Login / Sign Up</strong>
                 <br />
-                Google se 1-click login karo.
+                Login instantly with 1-click Google Login.
               </p>
             </div>
 
@@ -226,7 +226,8 @@ export default function Apply() {
               <p className="text-gray-800">
                 <strong>Activate Account ₹100</strong>
                 <br />
-                Payment karte hi referral link unlock ho jata hai.
+                Once the payment is completed, your referral link will be
+                unlocked instantly.
               </p>
             </div>
 
@@ -241,8 +242,9 @@ export default function Apply() {
               <p className="text-gray-800">
                 <strong>Share & Earn</strong>
                 <br />
-                Apna link WhatsApp, Instagram par share karo. Har payment par
-                ₹200 earn karo.
+                Share your referral link on WhatsApp, Instagram, and other
+                social platforms. Earn ₹200 for every successful payment made
+                through your link!
               </p>
             </div>
           </div>
@@ -286,7 +288,7 @@ export default function Apply() {
                 REFERRAL CODE : {userData?.referralCode}
               </p>
             )}
-            <div className="flex justify-center space-x-4 m-2">
+            <div className="flex flex-col md:flex-row justify-center space-x-4 m-2 gap-4 items-center">
               <button
                 className="flex items-center gap-2 bg-green-500 text-white py-1 px-3 rounded"
                 onClick={() => {
