@@ -10,7 +10,6 @@ export const Edit = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    upiId: "",
     walletAmount: 0,
   });
   const [message, setMessage] = useState("");
@@ -25,7 +24,6 @@ export const Edit = () => {
       setFormData({
         name: userData.name || "",
         email: userData.email || "",
-        upiId: userData.upiId || "",
         walletAmount: userData.walletAmount || 0,
       });
     }
@@ -39,8 +37,8 @@ export const Edit = () => {
     setError("");
     setMessage("");
     e.preventDefault();
-    if (!formData.name.trim() || !formData.upiId.trim()) {
-      setError("Name and UPI ID are required!");
+    if (!formData.name.trim()) {
+      setError("Name are required!");
       return;
     }
 
@@ -50,7 +48,6 @@ export const Edit = () => {
         {
           userId: userData._id,
           name: formData.name,
-          upiId: formData.upiId,
         },
         {
           headers: {
@@ -103,20 +100,6 @@ export const Edit = () => {
             className="w-full bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 text-gray-500 cursor-not-allowed"
             value={formData.email}
             readOnly
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">
-            UPI ID
-          </label>
-          <input
-            type="text"
-            name="upiId"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            value={formData.upiId}
-            onChange={handleChange}
-            placeholder="example@upi"
           />
         </div>
 

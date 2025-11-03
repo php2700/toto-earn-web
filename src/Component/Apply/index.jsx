@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import account from "../../assets/account.png";
 import googleImg from "../../assets/google.png";
 import share from "../../assets/share.png";
+import qrImg from "../../assets/qr.svg";
 
 export default function Apply() {
   const dispatch = useDispatch();
@@ -15,86 +16,60 @@ export default function Apply() {
   const [copied, setCopied] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [amount, setAmount] = useState("");
+  const [upiId, setUpiId] = useState("");
   const [message, setMessage] = useState("");
   const userId = localStorage.getItem("userId");
+  const [paymentModel, setPaymentModel] = useState(false);
+  const [utrNumber, setUtrNumber] = useState("");
+  const [paymentImage, setPaymentImage] = useState(null);
+  const [previewImage, setPreviewImage] = useState(null);
+  const [showQR, setShowQR] = useState(false);
+  const [paymentConfig, setPaymentConfig] = useState();
 
   useEffect(() => {
     dispatch(fetchUserData());
   }, [dispatch]);
 
-  const loadRazorpayScript = () => {
-    return new Promise((resolve) => {
-      const script = document.createElement("script");
-      script.src = "https://checkout.razorpay.com/v1/checkout.js";
-      script.onload = () => resolve(true);
-      script.onerror = () => resolve(false);
-      document.body.appendChild(script);
-    });
-  };
-
   const handleActivateClick = async () => {
-    const res = await loadRazorpayScript();
-    if (!res) {
-      return;
-    }
     try {
-      const { data: order } = await axios.post(
-        `${import.meta.env.VITE_APP_API_BASE_URL}createOrder`,
-        {
-          amount: `${import.meta.env.VITE_APP_AMOUNT}`,
-          currency: "INR",
-        }
-      );
-
-      const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-        amount: order.amount,
-        currency: order.currency,
-        name: "MyApp",
-        description: "Active Account ",
-        order_id: order.id,
-        handler: async function (response) {
-          const verifyRes = await axios.patch(
-            `${import.meta.env.VITE_APP_API_BASE_URL}api/user/activate`,
-            {
-              userId: userData?._id,
-              isActivate: true,
-            },
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
-          if (verifyRes) {
-            dispatch(fetchUserData());
-            toast.success("user activate", {
-              position: "top-right",
-            });
-          } else {
-            toast.success("user InActive", {
-              position: "top-right",
-            });
-          }
-        },
-        prefill: {
-          name: userData?.name || "Guest User",
-          email: userData?.email || "",
-          contact: userData?.phone || "",
-        },
-        theme: {
-          color: "#3399cc",
-        },
-      };
-
-      const rzp = new window.Razorpay(options);
-      rzp.open();
+      setShowQR(true);
     } catch (err) {
       console.error("Payment Error:", err);
       toast.error(err, {
         position: "top-right",
       });
     }
+  };
+
+  const getPaymentDetails = async () => {
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_APP_API_BASE_URL}api/user/payment-config`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log(res?.data);
+      setPaymentConfig(res?.data);
+    } catch (error) {
+      toast.error(
+        error.response.data?.message || error.message || "something went wrong",
+        {
+          position: "top-right",
+        }
+      );
+    }
+  };
+
+  useEffect(() => {
+    getPaymentDetails();
+  }, []);
+
+  const handleProceedToProof = () => {
+    setShowQR(false);
+    setPaymentModel(true);
   };
 
   const copyReferral = async () => {
@@ -126,18 +101,13 @@ export default function Apply() {
   };
 
   const withdrawReq = async () => {
-    if (!userData?.upiId) {
-      toast.error("First Add Upi Id In Edit Profile", {
-        position: "top-right",
-      });
-      return;
-    }
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_APP_API_BASE_URL}api/user/withdraw`,
         {
           userId,
           amount: Number(amount),
+          upiId: upiId,
         },
         {
           headers: {
@@ -160,6 +130,40 @@ export default function Apply() {
           position: "top-right",
         }
       );
+    }
+  };
+
+  const submitPaymentProof = async () => {
+    if (!utrNumber && !paymentImage) {
+      toast.error("Please provide either a UTR number or a screenshot.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("userId", userData?._id);
+    if (utrNumber) formData.append("utrNumber", utrNumber);
+    if (paymentImage) formData.append("paymentImage", paymentImage);
+
+    try {
+      const res = await axios.patch(
+        `${import.meta.env.VITE_APP_API_BASE_URL}api/user/payment-proof`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (res.status === 200) {
+        toast.success("Payment proof submitted successfully!");
+        setPaymentModel(false);
+        dispatch(fetchUserData());
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(error.response?.data?.message || "Something went wrong.");
     }
   };
 
@@ -188,6 +192,10 @@ export default function Apply() {
           {userData?.isActivate ? (
             <button className="w-full bg-blue-500 text-white py-2 rounded-lg mb-6">
               Active User
+            </button>
+          ) : userData?.utrNumber || userData?.paymentImage ? (
+            <button className="w-full bg-blue-500 text-white py-2 rounded-lg mb-6">
+              Wait For Active Account
             </button>
           ) : (
             <button
@@ -290,7 +298,14 @@ export default function Apply() {
             )}
             <div className="flex flex-col md:flex-row justify-center space-x-4 m-2 gap-4 items-center">
               <button
-                className="flex items-center gap-2 bg-green-500 text-white py-1 px-3 rounded"
+                disabled={!userData?.isActivate}
+                className={`flex items-center gap-2 bg-green-500 text-white py-1 px-3 rounded 
+                   ${
+                     userData?.isActivate
+                       ? "bg-green-500 hover:bg-green-600 text-white cursor-pointer"
+                       : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                   }
+                  `}
                 onClick={() => {
                   if (!userData?.referralCode) {
                     toast.error("refer code not available", {
@@ -316,8 +331,14 @@ export default function Apply() {
                 WhatsApp
               </button>
               <button
+                disabled={!userData?.isActivate}
                 onClick={copyReferral}
-                className="flex items-center gap-2 bg-gray-200 text-gray-800 py-1 px-3 rounded"
+                className={`flex items-center gap-2 py-1 px-3 rounded transition
+    ${
+      userData?.isActivate
+        ? "bg-gray-500 hover:bg-gray-600 text-white cursor-pointer"
+        : "bg-gray-300 text-gray-500 cursor-not-allowed"
+    }`}
               >
                 <img
                   src="https://cdn-icons-png.flaticon.com/512/60/60990.png"
@@ -326,9 +347,16 @@ export default function Apply() {
                 />
                 {copied ? "Copied" : "Copy"}
               </button>
+
               <button
                 onClick={handleInst}
-                className="flex items-center gap-2 bg-pink-500 text-white py-1 px-3 rounded"
+                disabled={!userData?.isActivate}
+                className={`flex items-center gap-2 py-1 px-3 rounded transition
+    ${
+      userData?.isActivate
+        ? "bg-pink-500 hover:bg-pink-600 text-white cursor-pointer"
+        : "bg-gray-300 text-gray-500 cursor-not-allowed"
+    }`}
               >
                 <img
                   src="https://cdn-icons-png.flaticon.com/512/1384/1384063.png"
@@ -343,11 +371,12 @@ export default function Apply() {
           <button
             onClick={() => setShowModal(true)}
             disabled={userData?.walletAmount <= 1200}
-            className={`w-full py-2 rounded-lg mb-4 text-white ${
-              userData?.walletAmount > 1200
-                ? "bg-blue-500 hover:bg-blue-600 cursor-pointer"
-                : "bg-gray-400 cursor-not-allowed"
-            }`}
+            className={`w-full py-2 rounded-lg mb-4 text-white
+              ${
+                userData?.walletAmount > 1200
+                  ? "bg-blue-500 hover:bg-blue-600 cursor-pointer"
+                  : "bg-gray-400 cursor-not-allowed"
+              }`}
           >
             Withdraw
           </button>
@@ -376,10 +405,19 @@ export default function Apply() {
               type="text"
               placeholder="Enter amount"
               value={amount}
+              required
               onChange={(e) => setAmount(e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-4 focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
-
+            <label>UPI Id</label>
+            <input
+              type="text"
+              placeholder="Enter UPI Id"
+              value={upiId}
+              required
+              onChange={(e) => setUpiId(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-4 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
             <div className="flex justify-between">
               <button
                 onClick={() => setShowModal(false)}
@@ -398,6 +436,137 @@ export default function Apply() {
                 }`}
               >
                 Confirm Withdraw
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showQR && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
+          <div className="bg-white rounded-2xl p-6 shadow-lg w-11/12 max-w-md">
+            <h2 className="text-xl font-semibold mb-4 text-center text-gray-800">
+              Scan & Pay
+            </h2>
+
+            <div className="flex justify-center">
+              <img
+                // src={`${import.meta.env.VITE_APP_URL}public/paymentQR.png`}
+                src={qrImg}
+                alt="Payment QR"
+                className="w-60 h-60 object-contain mb-4 border rounded-lg"
+              />
+            </div>
+
+            <a
+              href={`upi://pay?pa=${paymentConfig?.upiId}&pn=${
+                paymentConfig.name
+              }&am=${Number(paymentConfig.amount)}&cu=${
+                paymentConfig.currency
+              }`}
+              className="block text-center text-blue-500 underline mb-4"
+            >
+              Click to Pay using UPI app
+            </a>
+            <div className="flex flex-col gap-4">
+              <button
+                onClick={handleProceedToProof}
+                className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600"
+              >
+                I Have Paid — Next
+              </button>
+              <button
+                onClick={() => setShowQR(false)}
+                className="w-full border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {paymentModel && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 w-11/12 max-w-md relative">
+            <h2 className="text-2xl font-semibold mb-6 text-gray-800 text-center">
+              Payment Proof
+            </h2>
+
+            <label className="block text-gray-700 font-medium mb-2">
+              UTR Number (optional)
+            </label>
+            <input
+              type="text"
+              placeholder="Enter UTR number"
+              value={utrNumber}
+              onChange={(e) => {
+                setUtrNumber(e.target.value);
+                if (e.target.value) {
+                  setPaymentImage(null);
+                  setPreviewImage(null);
+                }
+              }}
+              disabled={!!paymentImage}
+              className={`w-full border rounded-lg px-3 py-2 mb-4 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                paymentImage
+                  ? "bg-gray-100 cursor-not-allowed"
+                  : "border-gray-300"
+              }`}
+            />
+
+            <label className="block text-gray-700 font-medium mb-2">
+              Upload Screenshot (optional)
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files[0];
+                setPaymentImage(file);
+                if (file) {
+                  setUtrNumber("");
+                  const reader = new FileReader();
+                  reader.onloadend = () => setPreviewImage(reader.result);
+                  reader.readAsDataURL(file);
+                } else {
+                  setPreviewImage(null);
+                }
+              }}
+              disabled={!!utrNumber}
+              className={`w-full border rounded-lg px-3 py-2 mb-4 focus:outline-none ${
+                utrNumber ? "bg-gray-100 cursor-not-allowed" : "border-gray-300"
+              }`}
+            />
+
+            {previewImage && (
+              <div className="mb-4">
+                <p className="text-gray-600 text-sm mb-2">Preview:</p>
+                <img
+                  src={previewImage}
+                  alt="Payment Screenshot"
+                  className="w-full h-48 object-contain rounded-lg border border-gray-300"
+                />
+              </div>
+            )}
+
+            <div className="flex justify-between mt-4">
+              <button
+                onClick={() => setPaymentModel(false)}
+                className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={submitPaymentProof}
+                disabled={!utrNumber && !paymentImage}
+                className={`px-4 py-2 rounded-lg text-white font-semibold transition ${
+                  utrNumber || paymentImage
+                    ? "bg-blue-500 hover:bg-blue-600"
+                    : "bg-blue-300 cursor-not-allowed"
+                }`}
+              >
+                Submit Proof
               </button>
             </div>
           </div>
