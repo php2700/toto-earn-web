@@ -448,11 +448,16 @@ export default function Apply() {
             <h2 className="text-xl font-semibold mb-4 text-center text-gray-800">
               Scan & Pay
             </h2>
-
+            {console.log(
+              `${import.meta.env.VITE_APP_API_BASE_URL}${
+                paymentConfig.imageName
+              }`
+            )}
             <div className="flex justify-center">
               <img
-                // src={`${import.meta.env.VITE_APP_URL}public/paymentQR.png`}
-                src={qrImg}
+                src={`${import.meta.env.VITE_APP_API_BASE_URL}${
+                  paymentConfig.imageName
+                }`}
                 alt="Payment QR"
                 className="w-60 h-60 object-contain mb-4 border rounded-lg"
               />
