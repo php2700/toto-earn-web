@@ -75,7 +75,10 @@ export default function Apply() {
   const copyReferral = async () => {
     if (!userData?.referralCode) return;
     try {
-      await navigator.clipboard.writeText(userData.referralCode);
+      const websiteUrl = import.meta.env.VITE_WEBSITE_URL;
+      const referralLink = `${websiteUrl}/signup?ref=${userData.referralCode}`;
+      const message = `Hey! Join this website and use my referral code. ${referralLink}`;
+      await navigator.clipboard.writeText(message);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
@@ -83,42 +86,21 @@ export default function Apply() {
     }
   };
 
-  // const handleInst = () => {
-  //   if (!userData?.referralCode) {
-  //     toast.error("refer code not available", {
-  //       position: "top-right",
-  //     });
-  //     return;
-  //   }
-  //   const websiteUrl = `${import.meta.env.VITE_WEBSITE_URL}`;
-  //   const referralLink = `${websiteUrl}/signup?ref=${userData.referralCode}`;
-  //   const message = encodeURIComponent(
-  //     `Hey! Join this website and use my referral code. ${referralLink}`
-  //   );
-  //   const instagramUrl = `https://www.instagram.com/direct/inbox/?text=${message}`;
-
-  //   window.open(instagramUrl, "_blank");
-  // };
-
-
   const handleInst = () => {
-     if (!userData?.referralCode) {
+    if (!userData?.referralCode) {
       toast.error("refer code not available", {
         position: "top-right",
       });
       return;
     }
-  const websiteUrl = import.meta.env.VITE_WEBSITE_URL;
-  const referralLink = `${websiteUrl}/signup?ref=${userData.referralCode}`;
-  const message = `Hey! Join this website and use my referral code. ${referralLink}`;
+    const websiteUrl = import.meta.env.VITE_WEBSITE_URL;
+    const referralLink = `${websiteUrl}/signup?ref=${userData.referralCode}`;
+    const message = `Hey! Join this website and use my referral code. ${referralLink}`;
 
-  navigator.clipboard.writeText(message).then(() => {
-    toast.success("Message copied! Paste it into Instagram chat.");
-    // Open Instagram inbox
-    window.open("https://www.instagram.com/direct/inbox/", "_blank");
-  });
-};
-
+    navigator.clipboard.writeText(message).then(() => {
+      window.open("https://www.instagram.com/direct/inbox/", "_blank");
+    });
+  };
 
   const withdrawReq = async () => {
     try {
@@ -372,10 +354,10 @@ export default function Apply() {
                 onClick={handleInst}
                 // disabled={!userData?.isActivate}
                 // ${
-    //   userData?.isActivate
-    //     ? "bg-pink-500 hover:bg-pink-600 text-white cursor-pointer"
-    //     : "bg-gray-300 text-gray-500 cursor-not-allowed"
-    // }`
+                //   userData?.isActivate
+                //     ? "bg-pink-500 hover:bg-pink-600 text-white cursor-pointer"
+                //     : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                // }`
                 className={`flex items-center gap-2 py-1 px-3 rounded transition
     
   `}
