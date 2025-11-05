@@ -83,22 +83,42 @@ export default function Apply() {
     }
   };
 
+  // const handleInst = () => {
+  //   if (!userData?.referralCode) {
+  //     toast.error("refer code not available", {
+  //       position: "top-right",
+  //     });
+  //     return;
+  //   }
+  //   const websiteUrl = `${import.meta.env.VITE_WEBSITE_URL}`;
+  //   const referralLink = `${websiteUrl}/signup?ref=${userData.referralCode}`;
+  //   const message = encodeURIComponent(
+  //     `Hey! Join this website and use my referral code. ${referralLink}`
+  //   );
+  //   const instagramUrl = `https://www.instagram.com/direct/inbox/?text=${message}`;
+
+  //   window.open(instagramUrl, "_blank");
+  // };
+
+
   const handleInst = () => {
-    if (!userData?.referralCode) {
+     if (!userData?.referralCode) {
       toast.error("refer code not available", {
         position: "top-right",
       });
       return;
     }
-    const websiteUrl = `${import.meta.env.VITE_WEBSITE_URL}`;
-    const referralLink = `${websiteUrl}/signup?ref=${userData.referralCode}`;
-    const message = encodeURIComponent(
-      `Hey! Join this website and use my referral code. ${referralLink}`
-    );
-    const instagramUrl = `https://www.instagram.com/direct/inbox/?text=${message}`;
+  const websiteUrl = import.meta.env.VITE_WEBSITE_URL;
+  const referralLink = `${websiteUrl}/signup?ref=${userData.referralCode}`;
+  const message = `Hey! Join this website and use my referral code. ${referralLink}`;
 
-    window.open(instagramUrl, "_blank");
-  };
+  navigator.clipboard.writeText(message).then(() => {
+    toast.success("Message copied! Paste it into Instagram chat.");
+    // Open Instagram inbox
+    window.open("https://www.instagram.com/direct/inbox/", "_blank");
+  });
+};
+
 
   const withdrawReq = async () => {
     try {
