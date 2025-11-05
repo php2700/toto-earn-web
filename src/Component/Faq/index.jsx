@@ -5,28 +5,34 @@ import heroBanner from "../../assets/hero_img.jpg";
 
 export default function Faq() {
       const [openIndex, setOpenIndex] = useState(null);
-      const faqs = [
-            {
-                  question: "What types of loans do you offer?",
-                  answer: "We provide personal loans, business loans, and home loans tailored to your needs.",
-            },
-            {
-                  question: "How long does it take to get loan approval?",
-                  answer: "Most loan applications are processed within 24–48 hours, depending on the required documentation.",
-            },
-            {
-                  question: "What documents are required for a loan application?",
-                  answer: "You typically need identity proof, address proof, income proof, and bank statements.",
-            },
-            {
-                  question: "Can I repay my loan early?",
-                  answer: "Yes, you can repay your loan early. Some loans may have a small prepayment fee.",
-            },
-            {
-                  question: "Do you offer loans without collateral?",
-                  answer: "Yes, we provide unsecured personal loans that do not require collateral.",
-            },
-      ];
+    const faqs = [
+  {
+    question: "What is Toto-Earn?",
+    answer: "Toto-Earn is a reward platform where you can earn money by completing simple tasks, inviting friends.",
+  },
+
+  {
+    question: "How do referrals work on Toto-Earn?",
+    answer: "You’ll receive a unique referral link or code. When your friends join using your referral, you earn bonus rewards for each successful signup or activity.",
+  },
+  {
+    question: "When will I receive my earnings?",
+    answer: "Earnings are credited to your wallet instantly or within 24 hours after task completion or referral verification.",
+  },
+  {
+    question: "Is Toto-Earn free to use?",
+    answer: "Yes! Joining and using Toto-Earn is completely free. You just need to perform tasks or refer others to start earning.",
+  },
+  {
+    question: "How can I withdraw my earnings?",
+    answer: "You can withdraw your earnings directly to your UPI, Paytm, or bank account once you reach the minimum withdrawal limit.",
+  },
+  {
+    question: "Can I use Toto-Earn on my mobile?",
+    answer: "Absolutely! Toto-Earn is mobile-friendly and works smoothly on all smartphones and browsers.",
+  },
+];
+
 
       const toggleFAQ = (index) => {
             setOpenIndex(openIndex === index ? null : index);

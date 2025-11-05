@@ -466,7 +466,6 @@ export default function Apply() {
                 className="w-60 h-60 object-contain mb-4 border rounded-lg"
               />
             </div>
-
             <a
               href={`upi://pay?pa=${paymentConfig?.upiId}&pn=${
                 paymentConfig.name
