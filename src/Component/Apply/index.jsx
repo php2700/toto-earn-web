@@ -350,13 +350,15 @@ export default function Apply() {
 
               <button
                 onClick={handleInst}
-                disabled={!userData?.isActivate}
+                // disabled={!userData?.isActivate}
+                // ${
+    //   userData?.isActivate
+    //     ? "bg-pink-500 hover:bg-pink-600 text-white cursor-pointer"
+    //     : "bg-gray-300 text-gray-500 cursor-not-allowed"
+    // }`
                 className={`flex items-center gap-2 py-1 px-3 rounded transition
-    ${
-      userData?.isActivate
-        ? "bg-pink-500 hover:bg-pink-600 text-white cursor-pointer"
-        : "bg-gray-300 text-gray-500 cursor-not-allowed"
-    }`}
+    
+  `}
               >
                 <img
                   src="https://cdn-icons-png.flaticon.com/512/1384/1384063.png"
