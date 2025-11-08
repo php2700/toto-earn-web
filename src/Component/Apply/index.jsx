@@ -288,7 +288,7 @@ export default function Apply() {
             <div>
               <p>
                 Min. Withdrawal <br />
-                <span className="font-bold">₹1200</span>
+                <span className="font-bold">₹200</span>
               </p>
             </div>
           </div>
