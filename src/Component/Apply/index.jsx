@@ -77,7 +77,7 @@ export default function Apply() {
     try {
       const websiteUrl = import.meta.env.VITE_WEBSITE_URL;
       const referralLink = `${websiteUrl}/signup?ref=${userData.referralCode}`;
-      const message = `Hey! Join this website and use my referral code. ${referralLink}`;
+      const message = `${referralLink}`;
       await navigator.clipboard.writeText(message);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -181,7 +181,7 @@ export default function Apply() {
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
         <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-3xl">
           <h1 className="text-2xl font-bold text-center mb-4">
-            Refer & Earn – Har Friend Pe ₹200 Kamao! 💰
+            Refer & Earn – Earn ₹200 for Every Friend! 💰
           </h1>
           <p className="text-center text-gray-600 mb-4">
             Refer & Earn – Earn ₹200 for Every Friend! 💰 Join now, pay ₹200
@@ -374,10 +374,10 @@ export default function Apply() {
 
           <button
             onClick={() => setShowModal(true)}
-            disabled={userData?.walletAmount <= 1200}
+            disabled={userData?.walletAmount <= 200}
             className={`w-full py-2 rounded-lg mb-4 text-white
               ${
-                userData?.walletAmount > 1200
+                userData?.walletAmount >= 200
                   ? "bg-blue-500 hover:bg-blue-600 cursor-pointer"
                   : "bg-gray-400 cursor-not-allowed"
               }`}
