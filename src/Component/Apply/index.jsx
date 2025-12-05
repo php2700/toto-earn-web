@@ -16,7 +16,8 @@ export default function Apply() {
   const [copied, setCopied] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [amount, setAmount] = useState("");
-  const [upiId, setUpiId] = useState("");
+  const [ifscCode, setIfscCode] = useState("");
+  const [bankAccountName, setBankAccountName] = useState("");
   const [message, setMessage] = useState("");
   const userId = localStorage.getItem("userId");
   const [paymentModel, setPaymentModel] = useState(false);
@@ -25,6 +26,7 @@ export default function Apply() {
   const [previewImage, setPreviewImage] = useState(null);
   const [showQR, setShowQR] = useState(false);
   const [paymentConfig, setPaymentConfig] = useState();
+  const [modalError, setModelError] = useState();
 
   useEffect(() => {
     dispatch(fetchUserData());
@@ -104,12 +106,20 @@ export default function Apply() {
 
   const withdrawReq = async () => {
     try {
+      if (userData?.walletAmount < amount) {
+        setModelError("Amount can not be greate than Availble amount");
+        setTimeout(() => {
+          setModelError("");
+        }, 1500);
+        return;
+      }
       const response = await axios.post(
         `${import.meta.env.VITE_APP_API_BASE_URL}api/user/withdraw`,
         {
           userId,
           amount: Number(amount),
-          upiId: upiId,
+          bankAccountName: bankAccountName,
+          ifscCode:ifscCode
         },
         {
           headers: {
@@ -117,11 +127,13 @@ export default function Apply() {
           },
         }
       );
+      if(response?.data){
       toast.success("Withdraw Request Sent", {
         position: "top-right",
       });
       setShowModal(false);
       setAmount("");
+        }
     } catch (error) {
       setMessage(
         error.response?.data?.message || "Something went wrong. Try again."
@@ -396,6 +408,12 @@ export default function Apply() {
             <h2 className="text-xl font-semibold mb-4 text-gray-800 text-center">
               Withdraw Amount
             </h2>
+            {modalError && (
+              <h2 className="bg-red-500 text-white text-center my-4 p-2 rounded">
+                Amount not Available!
+              </h2>
+            )}
+
             <label>Availble Amount</label>
             <input
               type="text"
@@ -413,18 +431,32 @@ export default function Apply() {
               onChange={(e) => setAmount(e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-4 focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
-            <label>UPI Id</label>
+            <label>Bank Account Name</label>
             <input
               type="text"
-              placeholder="Enter UPI Id"
-              value={upiId}
+              placeholder="Bank Account Name"
+              value={bankAccountName}
               required
-              onChange={(e) => setUpiId(e.target.value)}
+              onChange={(e) => setBankAccountName(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-4 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+            <label>IFSC code</label>
+            <input
+              type="text"
+              placeholder="IFSC code"
+              value={ifscCode}
+              required
+              onChange={(e) => setIfscCode(e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-4 focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
             <div className="flex justify-between">
               <button
-                onClick={() => setShowModal(false)}
+                onClick={() => {
+                  setAmount();
+                  setBankAccountName();
+                  setIfscCode();
+                  setShowModal(false);
+                }}
                 className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
               >
                 Cancel
@@ -467,7 +499,7 @@ export default function Apply() {
               />
             </div>
             <a
-              href={`upi://pay?pa=${paymentConfig?.upiId}&pn=${
+              href={`upi://pay?pa=${paymentConfig?.bankAccountName}&pn=${
                 paymentConfig.name
               }&am=${Number(paymentConfig.amount)}&cu=${
                 paymentConfig.currency

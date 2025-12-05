@@ -140,15 +140,15 @@ const Header = () => {
                 >
                   <List className="w-4 h-4 mr-2" /> Referral List
                 </button>
-                {/* <button
+                <button
                   onClick={() => {
                     setMenuOpen(false);
                     navigate("/applied-list");
                   }}
                   className="flex items-center w-full px-3 py-2 rounded hover:bg-gray-100"
                 >
-                  <List className="w-4 h-4 mr-2" /> Applied List
-                </button> */}
+                  <List className="w-4 h-4 mr-2" /> Transaction List
+                </button>
                 <button
                   onClick={handleLogout}
                   className="flex items-center w-full px-3 py-2 rounded hover:bg-gray-100"
