@@ -143,7 +143,7 @@ const Header = () => {
                 <button
                   onClick={() => {
                     setMenuOpen(false);
-                    navigate("/applied-list");
+                    navigate("/transaction-list");
                   }}
                   className="flex items-center w-full px-3 py-2 rounded hover:bg-gray-100"
                 >

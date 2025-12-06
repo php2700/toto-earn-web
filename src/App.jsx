@@ -45,9 +45,8 @@ function App() {
             <Route path="/signup" element={<Signup />} />
             <Route path="/upcoming-brand" element={<Upcoming />} />
             <Route path="/apply" element={<PrivateRoute><Apply /></PrivateRoute>} />
-            
             <Route path="/referrals" element={<PrivateRoute><Referral /></PrivateRoute>} />
-            <Route path="/applied-list" element={<PrivateRoute><Applied /></PrivateRoute>} />
+            <Route path="/transaction-list" element={<PrivateRoute><Applied /></PrivateRoute>} />
             <Route path="/edit" element={<PrivateRoute><Edit /></PrivateRoute>} />
             <Route path='/add-bank-detail' element={<PrivateRoute><AddBankDetail/></PrivateRoute>} />
             <Route path='/term-condition' element={<TermCondition />} />

@@ -13,12 +13,14 @@ export const Applied = () => {
       .get(
         `${
           import.meta.env.VITE_APP_API_BASE_URL
-        }api/user/applied-list/${userId}`,
+        }api/user/transaction-list/${userId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       )
-      .then((res) => setAppliedData(res?.data?.loanAppliedList))
+      .then((res) => {
+        setAppliedData(res?.data?.data);
+      })
       .catch((err) => console.error(err));
   }, [token, userId]);
 
@@ -37,7 +39,7 @@ export const Applied = () => {
               </th>
 
               <th className="py-2 px-4 text-left border-b border-gray-200">
-                Amount Request
+                Withdraw Request
               </th>
               <th className="py-2 px-4 text-left border-b border-gray-200">
                 IFSC Code
@@ -50,38 +52,36 @@ export const Applied = () => {
               </th>
             </tr>
           </thead>
-          {appliedData?.length ? (
+          {appliedData?.withdraw?.length ? (
             <tbody>
-              {appliedData.map((apply, index) => (
+              {appliedData?.withdraw?.map((apply, index) => (
                 <tr key={index} className="hover:bg-gray-50">
                   <td className="py-2 px-4 border-b border-gray-200">
                     {index + 1}
                   </td>
                   <td className="py-2 px-4 border-b border-gray-200">
-                    {apply.fullName}
+                    {apply.bankAccountName ? apply.bankAccountName : "N/A"}
                   </td>
                   <td className="py-2 px-4 border-b border-gray-200">
-                    {apply.loanAmount}
-                  </td>
-                  <td className="py-2 px-4 border-b border-gray-200">
-                    {apply.accountHolderName ? apply.accountHolderName : "N/A"}
+                    {apply.amount ? apply.amount : "N/A"}
                   </td>
                   <td className="py-2 px-4 border-b border-gray-200">
                     {apply.ifscCode ? apply.ifscCode : "N/A"}
                   </td>
-                  <td className="py-2 px-4 border-b border-gray-200">
-                    {apply.bankName ? apply.bankName : "N/A"}
-                  </td>
                   <td
                     className={`py-2 px-4 border-b border-gray-200 ${
-                      apply.isAcceptLoan == "accepted"
+                      apply.isAccept === "Accepted"
                         ? "text-green-500"
-                        : apply.isAcceptLoan == "rejected"
+                        : apply.isAccept === "Rejected"
                         ? "text-red-500"
                         : "text-yellow-500"
-                    } `}
+                    }`}
                   >
-                    {apply.isAcceptLoan}
+                    {apply.isAccept === "Accepted"
+                      ? "Completed"
+                      : apply.isAccept === "Rejected"
+                      ? "Rejected"
+                      : "Pending"}
                   </td>
                   <td className="py-2 px-4 border-b border-gray-200">
                     {new Date(apply.createdAt).toLocaleDateString()}
