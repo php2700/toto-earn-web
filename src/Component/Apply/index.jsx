@@ -119,7 +119,7 @@ export default function Apply() {
           userId,
           amount: Number(amount),
           bankAccountName: bankAccountName,
-          ifscCode:ifscCode
+          ifscCode: ifscCode,
         },
         {
           headers: {
@@ -127,13 +127,13 @@ export default function Apply() {
           },
         }
       );
-      if(response?.data){
-      toast.success("Withdraw Request Sent", {
-        position: "top-right",
-      });
-      setShowModal(false);
-      setAmount("");
-        }
+      if (response?.data) {
+        toast.success("Withdraw Request Sent", {
+          position: "top-right",
+        });
+        setShowModal(false);
+        setAmount("");
+      }
     } catch (error) {
       setMessage(
         error.response?.data?.message || "Something went wrong. Try again."
@@ -498,6 +498,10 @@ export default function Apply() {
                 className="w-60 h-60 object-contain mb-4 border rounded-lg"
               />
             </div>
+            <div className="font-bold text-center">OR</div>
+            <div className="text-center my-2">{`${
+              import.meta.env.VITE_UPI_ID
+            }`}</div>
             <a
               href={`upi://pay?pa=${paymentConfig?.bankAccountName}&pn=${
                 paymentConfig.name
@@ -592,7 +596,9 @@ export default function Apply() {
 
             <div className="flex justify-between mt-4">
               <button
-                onClick={() => setPaymentModel(false)}
+                onClick={() => {
+                  setPaymentModel(false);
+                }}
                 className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition"
               >
                 Cancel
