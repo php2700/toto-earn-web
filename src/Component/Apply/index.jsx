@@ -499,12 +499,10 @@ export default function Apply() {
               />
             </div>
             <div className="font-bold text-center">OR</div>
-            <div className="text-center my-2">{`${
-              import.meta.env.VITE_UPI_ID
-            }`}</div>
+            <div className="text-center my-2">{paymentConfig?.upiId}</div>
             <a
-              href={`upi://pay?pa=${paymentConfig?.bankAccountName}&pn=${
-                paymentConfig.name
+              href={`upi://pay?pa=${paymentConfig?.upiId}&pn=${
+                paymentConfig.accountHolder
               }&am=${Number(paymentConfig.amount)}&cu=${
                 paymentConfig.currency
               }`}
