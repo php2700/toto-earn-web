@@ -8,7 +8,6 @@ import account from "../../assets/account.png";
 import googleImg from "../../assets/google.png";
 import share from "../../assets/share.png";
 import qrImg from "../../assets/qr.svg";
-import ScratchCard from "../Home/ScratchCard";
 
 export default function Apply() {
   const dispatch = useDispatch();
@@ -191,14 +190,6 @@ export default function Apply() {
         <h1 className="text-6xl font-bold text-gray-800">REFER & EARN</h1>
       </div>
 
-      <div style={{ padding: 40 }}>
-      <ScratchCard
-        width={320}
-        height={180}
-        revealPercent={60}
-        onComplete={() => alert("Scratch Completed!")}
-      />
-    </div>
 
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
         <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-3xl">
