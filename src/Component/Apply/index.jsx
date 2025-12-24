@@ -2995,9 +2995,9 @@ if (!isValidObjectId) return;
   const getPoints = async () => {
     try {
       const res = await axios.get(
-        `${import.meta.env.VITE_APP_API_BASE_URL}api/user/today-reward-points`,
+        `${import.meta.env.VITE_APP_API_BASE_URL}api/user/today-reward-points/${currentId}`,
         {
-          params: { userId: currentId },
+        
           headers: { Authorization: `Bearer ${token}` },
         }
       );
