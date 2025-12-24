@@ -2921,7 +2921,8 @@ export default function Apply() {
       setIsWithin30Days(diffDays <= 30);
 
       const checkTimer = () => {
-        if (!userData.isActivate) {
+        if ( userData?.isActivate === 'inactive' ||
+  userData?.isActivate === 'reject') {
           setCanScratch(false);
           return;
         }
@@ -2961,25 +2962,11 @@ export default function Apply() {
     }
   }, [userData]);
 
-  // --- Fetch Daily Reward Points ---
-  // useEffect(() => {
-  //   const safeUserId = userData?._id || userId;
-  //   if (canScratch && scratchType === "daily" && safeUserId && safeUserId.length === 24) {
-  //     const getPoints = async () => {
-  //       try {
-  //         const res = await axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}api/user/today-reward-points`,
-  //           { params: { userId: safeUserId }, headers: { Authorization: `Bearer ${token}` } });
-  //         if (res.data && res.data.points) setPointsEarned(res.data.points);
-  //       } catch (err) { console.error(err); }
-  //     };
-  //     getPoints();
-  //   }
-  // }, [canScratch, scratchType, userData?._id, token]);
+
 
 useEffect(() => {
   if (!canScratch || scratchType !== "daily") return;
 
-  // const currentId = userData?._id || localStorage.getItem("userId");
   const currentId = userData?._id;
 
 const isValidObjectId =
@@ -3012,27 +2999,10 @@ if (!isValidObjectId) return;
 
 
 
-  // --- Handlers ---
-  // const handleScratchComplete = async () => {
-  //   if (!userData?.isActivate) return toast.error("Activate account first!");
-  //   try {
-  //     const endpoint = scratchType === "referral" ? "claim-referral-coupon" : "claim-daily-points";
-  //     const res = await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}api/user/${endpoint}`,
-  //       { userId: userData._id }, { headers: { Authorization: `Bearer ${token}` } });
-
-  //     if (res.status === 200) {
-  //       toast.success(`${pointsEarned.toLocaleString()} Points added! ✨`);
-  //       if (scratchType === "daily") localStorage.setItem(`last_scratch_${userData._id}`, new Date().toISOString());
-  //       setCanScratch(false);
-  //       setPointsEarned(0);
-  //       dispatch(fetchUserData());
-  //     }
-  //   } catch (err) { toast.error("Error claiming points."); }
-  // };
-
 
 const handleScratchComplete = async () => {
-  if (!userData?.isActivate) return;
+  if ( userData?.isActivate === 'inactive' ||
+  userData?.isActivate === 'reject') return;
 
   try {
     // Agar scratchType "referral" hai toh ye 'claim-referral-coupon' par jana chahiye
@@ -3047,15 +3017,13 @@ const handleScratchComplete = async () => {
 
     if (res.status === 200) {
       toast.success(`${res.data.points} Points added! ✨`);
-      
-      // Timer sirf daily ke liye update karein
       if (scratchType === "daily") {
         localStorage.setItem(`last_scratch_${userData._id}`, new Date().toISOString());
       }
       
       setCanScratch(false);
       setPointsEarned(0);
-      dispatch(fetchUserData()); // Database se naya scratchCardsBalance fetch karein
+      dispatch(fetchUserData()); 
     }
   } catch (err) {
     console.error("Scratch Error:", err.response?.data);
@@ -3064,8 +3032,9 @@ const handleScratchComplete = async () => {
 };
 
   const handleClaimPointsToCash = async () => {
-    if (!userData?.isActivate) return toast.error("Please activate account first!");
-    if (userData?.pointsBalance < 50000) return toast.warning("Min 50,000 points needed!");
+    if ( userData?.isActivate === 'inactive' ||
+  userData?.isActivate === 'reject') return toast.error("Please activate account first!");
+    if (userData?.pointsBalance < 1000) return toast.warning("Min 50,000 points needed!");
     try {
       const res = await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}api/user/convert-points`,
         { userId: userData._id }, { headers: { Authorization: `Bearer ${token}` } });
@@ -3123,7 +3092,6 @@ const handleScratchComplete = async () => {
 
   return (
     <section className="w-full pt-16">
-      {/* Banner */}
       <div className="h-[50vh] flex items-center justify-center bg-grid" style={{ backgroundImage: `url(${bgImg})` }}>
         <h1 className="text-6xl font-bold text-gray-800 tracking-tighter uppercase italic text-center">REFER & EARN</h1>
       </div>
@@ -3136,24 +3104,35 @@ const handleScratchComplete = async () => {
             Share your link — every friend's activation earns you ₹200 (20k pts) instantly! 💸
           </p>
 
-          {/* Activation UI */}
-          {userData?.isActivate ? (
-            <button className="w-full bg-green-600 text-white py-3 rounded-lg mb-6 font-black shadow-md tracking-widest uppercase">✓ ACTIVE USER</button>
-          ) : userData?.utrNumber || userData?.paymentImage ? (
-            <button className="w-full bg-yellow-500 text-white py-3 rounded-lg mb-6 font-black shadow-md animate-pulse uppercase tracking-widest">PENDING ACTIVATION...</button>
-          ) : (
-            <button onClick={handleActivateClick} className="w-full bg-blue-600 text-white py-3 rounded-lg mb-6 font-black shadow-md hover:bg-blue-700 transition tracking-widest uppercase">ACTIVATE & GET LINK</button>
-          )}
+        {userData?.isActivate === 'active' ? (
+  <button className="w-full bg-green-600 text-white py-3 rounded-lg mb-6 font-black shadow-md tracking-widest uppercase">
+    ✓ ACTIVE USER
+  </button>
+) : userData?.isActivate === 'reject' ? (
+  <button className="w-full bg-red-500 text-white py-3 rounded-lg mb-6 font-black shadow-md animate-pulse uppercase tracking-widest">
+    REJECT ACTIVATION...
+  </button>
+) : userData?.utrNumber || userData?.paymentImage ? (
+  <button className="w-full bg-yellow-500 text-white py-3 rounded-lg mb-6 font-black shadow-md animate-pulse uppercase tracking-widest">
+    PENDING ACTIVATION...
+  </button>
+) : (
+  <button
+    onClick={handleActivateClick}
+    className="w-full bg-blue-600 text-white py-3 rounded-lg mb-6 font-black shadow-md hover:bg-blue-700 transition tracking-widest uppercase"
+  >
+    ACTIVATE & GET LINK
+  </button>
+)}
 
-          {/* How it Works */}
+
           <div className="grid grid-cols-3 gap-2 mb-10 text-center">
             <div className="flex flex-col items-center"><img src={googleImg} className="w-12 h-12 mb-2" alt="1" /><p className="text-[10px]"><strong>1. Login</strong><br />Google Signup</p></div>
             <div className="flex flex-col items-center"><img src={account} className="w-12 h-12 mb-2" alt="2" /><p className="text-[10px]"><strong>2. Activate</strong><br />Pay fee</p></div>
             <div className="flex flex-col items-center"><img src={share} className="w-12 h-12 mb-2" alt="3" /><p className="text-[10px]"><strong>3. Earn</strong><br />Get Points</p></div>
           </div>
 
-          {/* --- GOLDEN BOX --- */}
-          {isWithin30Days && (
+          {/* {isWithin30Days && (
             <div className="w-full bg-gradient-to-r from-amber-400 via-yellow-200 to-amber-500 p-6 rounded-2xl shadow-xl border-2 border-amber-600 mb-8 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
               <div className="absolute top-0 right-0 p-2 opacity-10 text-6xl">💎</div>
               <div className="text-center md:text-left">
@@ -3171,14 +3150,16 @@ const handleScratchComplete = async () => {
                   </div>
                 )}
                 <div className="block mt-2">
-                  <button onClick={handleClaimPointsToCash} className={`px-4 py-2 rounded-lg font-bold shadow-lg transition text-sm ${userData?.isActivate && userData?.pointsBalance >= 50000 ? "bg-amber-950 text-white hover:bg-black" : "bg-gray-400 text-gray-200 cursor-not-allowed"}`}>
-                    {userData?.pointsBalance >= 50000 ? "CLAIM CASH (₹)" : "MIN 50k PTS"}
+                  <button onClick={handleClaimPointsToCash} className={`px-4 py-2 rounded-lg font-bold shadow-lg transition text-sm
+                     ${userData?.isActivate === 'active' && userData?.pointsBalance >= 1000 ? "bg-amber-950 text-white hover:bg-black" : "bg-gray-400 text-gray-200 cursor-not-allowed"}`}>
+                    {userData?.pointsBalance >= 1000 ? "CLAIM CASH (₹)" : "MIN 1000 PTS"}
                   </button>
                 </div>
               </div>
 
               <div className="bg-white/40 p-2 rounded-xl backdrop-blur-sm border border-white/50 min-w-[280px] flex flex-col items-center justify-center min-h-[160px]">
-                {!userData?.isActivate ? (
+                { (userData?.isActivate === 'inactive' ||
+  userData?.isActivate === 'reject') ? (
                   <div className="text-center py-6"><span className="text-4xl mb-2 block">🔒</span><p className="text-amber-900 font-black text-[10px] uppercase">Locked</p></div>
                 ) : 
                 canScratch ? (
@@ -3188,7 +3169,6 @@ const handleScratchComplete = async () => {
                       height={130}
                       
                       revealPercent={60}
-                      // Dynamic logic: Agar referral hai to fix 20k, nahi to backend wala pointsEarned
                       rewardValue={
                         scratchType === "referral"
                           ? "20,000 Points"
@@ -3210,34 +3190,30 @@ const handleScratchComplete = async () => {
               </div>
 
             </div>
-          )}
+          )} */}
 
-          {/* Wallet Grid */}
-          <div className="grid grid-cols-2 gap-px bg-gray-200 border border-gray-200 rounded-xl overflow-hidden mb-8 shadow-sm text-center">
+          {/* <div className="grid grid-cols-2 gap-px bg-gray-200 border border-gray-200 rounded-xl overflow-hidden mb-8 shadow-sm text-center">
             <div className="bg-white p-4 border-r border-b"><p className="text-gray-400 text-[10px] uppercase font-bold tracking-tighter">Points Balance</p><p className="text-2xl font-black text-amber-600">{userData?.pointsBalance || 0}</p></div>
             <div className="bg-white p-4 border-b"><p className="text-gray-400 text-[10px] uppercase font-bold tracking-tighter">Money Wallet (₹)</p><p className="text-2xl font-black text-blue-600">₹{userData?.walletAmount || 0}</p></div>
             <div className="bg-white p-4 border-r"><p className="text-gray-400 text-[10px] uppercase font-bold tracking-tighter">Active Referrals</p><p className="text-xl font-bold text-green-600">{userData?.activeReferralsCount || 0}</p></div>
             <div className="bg-white p-4"><p className="text-gray-400 text-[10px] uppercase font-bold tracking-tighter">Min. Withdrawal</p><p className="text-xl font-bold text-gray-800">₹200</p></div>
-          </div>
+          </div> */}
 
-          {/* --- REFERRAL LINK BOX (RESTORED FROM FIRST FILE) --- */}
-          {userData?.isActivate && (
+          {/* {(userData?.isActivate=='active') && (
             <div className="bg-blue-50 p-4 rounded-xl border border-dashed border-blue-300 mb-6 text-center">
               <p className="text-[10px] text-blue-400 font-bold uppercase mb-1 tracking-widest">Your Referral Link & Code</p>
               <p className="text-xs font-mono text-blue-700 font-bold break-all mb-1">{import.meta.env.VITE_WEBSITE_URL}/signup?ref={userData.referralCode}</p>
               <p className="text-[10px] text-gray-500 italic uppercase">Code: <span className="text-blue-600 font-black">{userData.referralCode}</span></p>
             </div>
-          )}
-
-          {/* Sharing Buttons (Restored Styles & Instagram) */}
+          )} */}
           <div className="flex flex-wrap justify-center gap-4 mb-8">
-            <button disabled={!userData?.isActivate} className="flex items-center gap-2 bg-green-500 text-white px-6 py-2 rounded-full font-bold shadow-md disabled:opacity-50 text-xs" onClick={() => window.open(`https://wa.me/?text=Join and earn rewards: ${import.meta.env.VITE_WEBSITE_URL}/signup?ref=${userData.referralCode}`, "_blank")}>
+            <button disabled={ userData?.isActivate === 'inactive' || userData?.isActivate === 'reject'} className="flex items-center gap-2 bg-green-500 text-white px-6 py-2 rounded-full font-bold shadow-md disabled:opacity-50 text-xs" onClick={() => window.open(`https://wa.me/?text=Join and earn rewards: ${import.meta.env.VITE_WEBSITE_URL}/signup?ref=${userData.referralCode}`, "_blank")}>
               <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" className="w-4 h-4" alt="wa" /> WhatsApp
             </button>
-            <button disabled={!userData?.isActivate} onClick={copyReferral} className="flex items-center gap-2 bg-gray-700 text-white px-6 py-2 rounded-full font-bold shadow-md disabled:opacity-50 text-xs uppercase">
+            <button disabled={ userData?.isActivate === 'inactive' || userData?.isActivate === 'reject'} onClick={copyReferral} className="flex items-center gap-2 bg-gray-700 text-white px-6 py-2 rounded-full font-bold shadow-md disabled:opacity-50 text-xs uppercase">
               <img src="https://cdn-icons-png.flaticon.com/512/60/60990.png" className="w-4 h-4" alt="copy" /> {copied ? "COPIED!" : "COPY LINK"}
             </button>
-            <button disabled={!userData?.isActivate} onClick={handleInst} className="flex items-center gap-2 bg-pink-500 text-white px-6 py-2 rounded-full font-bold shadow-md disabled:opacity-50 text-xs">
+            <button disabled={  userData?.isActivate === 'inactive' || userData?.isActivate === 'reject'} onClick={handleInst} className="flex items-center gap-2 bg-pink-500 text-white px-6 py-2 rounded-full font-bold shadow-md disabled:opacity-50 text-xs">
               <img src="https://cdn-icons-png.flaticon.com/512/1384/1384063.png" className="w-4 h-4" alt="ig" /> INSTAGRAM
             </button>
           </div>
@@ -3253,7 +3229,7 @@ const handleScratchComplete = async () => {
           <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
             <h2 className="text-xl font-bold mb-4 text-center">Withdraw Funds</h2>
             <input type="number" placeholder="Amount" value={amount} onChange={(e) => setAmount(e.target.value)} className="w-full border p-3 rounded mb-3 text-sm" />
-            <input type="text" placeholder="Bank Holder Name" value={bankAccountName} onChange={(e) => setBankAccountName(e.target.value)} className="w-full border p-3 rounded mb-3 text-sm" />
+            <input type="text" placeholder="Bank Account Number" value={bankAccountName} onChange={(e) => setBankAccountName(e.target.value)} className="w-full border p-3 rounded mb-3 text-sm" />
             <input type="text" placeholder="IFSC Code" value={ifscCode} onChange={(e) => setIfscCode(e.target.value)} className="w-full border p-3 rounded mb-6 text-sm" />
             <div className="flex gap-4">
               <button onClick={() => setShowModal(false)} className="flex-1 bg-gray-100 py-2 rounded font-bold">Cancel</button>

@@ -35,7 +35,7 @@ export const Applied = () => {
                 S.No
               </th>
               <th className="py-2 px-4 text-left border-b border-gray-200">
-                Account Holder Name
+                Account Number
               </th>
 
               <th className="py-2 px-4 text-left border-b border-gray-200">
