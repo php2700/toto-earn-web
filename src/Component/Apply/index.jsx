@@ -3132,7 +3132,7 @@ export default function Apply() {
             <div className="flex flex-col items-center"><img src={share} className="w-12 h-12 mb-2" alt="3" /><p className="text-[10px]"><strong>3. Earn</strong><br />Get Points</p></div>
           </div>
 
-           {isWithin30Days && (
+           {/* {isWithin30Days && (
             <div className="w-full bg-gradient-to-r from-amber-400 via-yellow-200 to-amber-500 p-6 rounded-2xl shadow-xl border-2 border-amber-600 mb-8 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
               <div className="absolute top-0 right-0 p-2 opacity-10 text-6xl">💎</div>
               <div className="text-center md:text-left">
@@ -3205,7 +3205,7 @@ export default function Apply() {
               <p className="text-xs font-mono text-blue-700 font-bold break-all mb-1">{import.meta.env.VITE_WEBSITE_URL}/signup?ref={userData.referralCode}</p>
               <p className="text-[10px] text-gray-500 italic uppercase">Code: <span className="text-blue-600 font-black">{userData.referralCode}</span></p>
             </div>
-          )} 
+          )}  */}
 
 
           <div className="flex flex-wrap justify-center gap-4 mb-8">
