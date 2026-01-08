@@ -3288,6 +3288,341 @@
 //o8 line
 
 
+// import { useEffect, useState } from "react";
+// import bgImg from "../../assets/h1_hero.jpg";
+// import axios from "axios";
+// import { useDispatch, useSelector } from "react-redux";
+// import { fetchUserData } from "../Store/userSlice";
+// import { toast } from "react-toastify";
+// import account from "../../assets/account.png";
+// import googleImg from "../../assets/google.png";
+// import share from "../../assets/share.png";
+// import ScratchCard from "../Home/ScratchCard";
+
+// export default function Apply() {
+//   const dispatch = useDispatch();
+//   const token = localStorage.getItem("totoToken");
+//   const { userData } = useSelector((state) => state.user);
+
+//   // UI States
+//   const [copied, setCopied] = useState(false);
+//   const [showModal, setShowModal] = useState(false);
+//   const [amount, setAmount] = useState("");
+//   const [ifscCode, setIfscCode] = useState("");
+//   const [bankAccountName, setBankAccountName] = useState("");
+  
+//   // States updated for free activation
+//   const [isSubmitting, setIsSubmitting] = useState(false);
+
+//   // --- Rewards & Scratch States ---
+//   const [canScratch, setCanScratch] = useState(false);
+//   const [isWithin30Days, setIsWithin30Days] = useState(false);
+//   const [timeLeft, setTimeLeft] = useState("");
+//   const [pointsEarned, setPointsEarned] = useState(0);
+//   const [scratchType, setScratchType] = useState("");
+
+//   useEffect(() => {
+//     dispatch(fetchUserData());
+//   }, [dispatch]);
+
+//   // --- Timer & Priority Logic ---
+//   useEffect(() => {
+//     if (userData) {
+//       const signupDate = new Date(userData.createdAt);
+//       const now = new Date();
+//       const diffDays = Math.ceil((now - signupDate) / (1000 * 60 * 60 * 24));
+//       setIsWithin30Days(diffDays <= 30);
+
+//       const checkTimer = () => {
+//         if (userData?.isActivate === 'inactive' || userData?.isActivate === 'reject') {
+//           setCanScratch(false);
+//           return;
+//         }
+
+//         if (userData.scratchCardsBalance > 0) {
+//           setCanScratch(true);
+//           setScratchType("referral");
+//           setPointsEarned(20000);
+//           return;
+//         }
+
+//         const lastScratch = localStorage.getItem(`last_scratch_${userData._id}`);
+//         if (lastScratch) {
+//           const lastTime = new Date(lastScratch).getTime();
+//           const distance = (24 * 60 * 60 * 1000) - (new Date().getTime() - lastTime);
+
+//           if (distance > 0) {
+//             setCanScratch(false);
+//             const h = Math.floor(distance / (1000 * 60 * 60));
+//             const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+//             setTimeLeft(`${h}h ${m}m`);
+//           } else {
+//             setCanScratch(true);
+//             setScratchType("daily");
+//           }
+//         } else {
+//           setCanScratch(true);
+//           setScratchType("daily");
+//         }
+//       };
+
+//       checkTimer();
+//       const interval = setInterval(checkTimer, 60000);
+//       return () => clearInterval(interval);
+//     }
+//   }, [userData]);
+
+//   useEffect(() => {
+//     if (!canScratch || scratchType !== "daily") return;
+//     const currentId = userData?._id;
+//     if (!currentId || !token) return;
+
+//     const getPoints = async () => {
+//       try {
+//         const res = await axios.get(
+//           `${import.meta.env.VITE_APP_API_BASE_URL}api/user/today-reward-points/${currentId}`,
+//           { headers: { Authorization: `Bearer ${token}` } }
+//         );
+//         setPointsEarned(res.data?.points || 0);
+//       } catch (err) {
+//         console.error("Daily reward API failed", err);
+//       }
+//     };
+//     getPoints();
+//   }, [canScratch, scratchType, userData?._id, token]);
+
+//   const handleScratchComplete = async () => {
+//     if (userData?.isActivate === 'inactive' || userData?.isActivate === 'reject') return;
+//     try {
+//       const endpoint = scratchType === "referral" ? "claim-referral-coupon" : "claim-daily-points";
+//       const res = await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}api/user/${endpoint}`,
+//         { userId: userData._id },
+//         { headers: { Authorization: `Bearer ${token}` } }
+//       );
+
+//       if (res.status === 200) {
+//         toast.success(`${res.data.points} Points added! ✨`);
+//         if (scratchType === "daily") {
+//           localStorage.setItem(`last_scratch_${userData._id}`, new Date().toISOString());
+//         }
+//         setCanScratch(false);
+//         setPointsEarned(0);
+//         dispatch(fetchUserData());
+//       }
+//     } catch (err) {
+//       toast.error(err.response?.data?.message || "Error claiming points.");
+//     }
+//   };
+
+//   const handleClaimPointsToCash = async () => {
+//     if (userData?.isActivate === 'inactive' || userData?.isActivate === 'reject') 
+//       return toast.error("Please activate account first!");
+//     if (userData?.pointsBalance < 1000) return toast.warning("Min 1,000 points needed!");
+//     try {
+//       const res = await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}api/user/convert-points`,
+//         { userId: userData._id }, { headers: { Authorization: `Bearer ${token}` } });
+//       if (res.status === 200) {
+//         toast.success(`Converted to cash! 💰`);
+//         dispatch(fetchUserData());
+//       }
+//     } catch (err) { toast.error("Conversion failed."); }
+//   };
+
+//   // MODIFIED: Request Free Activation
+//   const handleFreeActivation = async () => {
+//     setIsSubmitting(true);
+//     const formData = new FormData();
+//     formData.append("userId", userData?._id);
+//     // Hum "FREE" value bhej rahe hain taaki admin ko pata chale ye free request hai
+//     formData.append("utrNumber", "FREE_ACTIVATION_REQUEST"); 
+
+//     try {
+//       await axios.patch(`${import.meta.env.VITE_APP_API_BASE_URL}api/user/payment-proof`, formData, { 
+//         headers: { Authorization: `Bearer ${token}` } 
+//       });
+//       toast.success("Activation request sent! Waiting for admin approval.");
+//       dispatch(fetchUserData());
+//     } catch (error) { 
+//       toast.error("Failed to send request. Try again."); 
+//     } finally {
+//       setIsSubmitting(false);
+//     }
+//   };
+
+//   const copyReferral = async () => {
+//     const link = `${import.meta.env.VITE_WEBSITE_URL}/signup?ref=${userData.referralCode}`;
+//     await navigator.clipboard.writeText(link);
+//     setCopied(true); setTimeout(() => setCopied(false), 2000);
+//     toast.success("Link Copied!");
+//   };
+
+//   const handleInst = () => {
+//     if (!userData?.referralCode) return toast.error("Refer code not available");
+//     const link = `${import.meta.env.VITE_WEBSITE_URL}/signup?ref=${userData.referralCode}`;
+//     navigator.clipboard.writeText(`Join and earn rewards: ${link}`).then(() => {
+//       window.open("https://www.instagram.com/direct/inbox/", "_blank");
+//     });
+//   };
+
+//   const withdrawReq = async () => {
+//     if (userData?.walletAmount < amount) return toast.error("Low Balance!");
+//     try {
+//       await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}api/user/withdraw`,
+//         { userId: userData._id, amount: Number(amount), bankAccountName, ifscCode }, { headers: { Authorization: `Bearer ${token}` } });
+//       toast.success("Withdraw Sent"); setShowModal(false); dispatch(fetchUserData());
+//     } catch (err) { toast.error("Error"); }
+//   };
+
+//   return (
+//     <section className="w-full pt-16">
+//       <div className="h-[50vh] flex items-center justify-center bg-grid" style={{ backgroundImage: `url(${bgImg})` }}>
+//         <h1 className="text-6xl font-bold text-gray-800 tracking-tighter uppercase italic text-center">REFER & EARN</h1>
+//       </div>
+
+//       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+//         <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-3xl">
+//           <h1 className="text-2xl font-bold text-center mb-4 text-blue-800 tracking-tight">Refer & Earn – Earn 20k Points (₹200) Per Friend! 💰</h1>
+//           <p className="text-center text-gray-600 mb-6 text-sm">
+//             Refer & Earn – Join now, request FREE activation and get instant signup bonus!
+//             Share your link — every friend's activation earns you ₹200 (20k pts) instantly! 💸
+//           </p>
+
+//           {userData?.isActivate === 'active' ? (
+//             <button className="w-full bg-green-600 text-white py-3 rounded-lg mb-6 font-black shadow-md tracking-widest uppercase">
+//               ✓ ACTIVE USER
+//             </button>
+//           ) : userData?.isActivate === 'reject' ? (
+//             <button className="w-full bg-red-500 text-white py-3 rounded-lg mb-6 font-black shadow-md animate-pulse uppercase tracking-widest">
+//               REJECTED - CONTACT SUPPORT
+//             </button>
+//           ) : userData?.utrNumber || userData?.paymentImage ? (
+//             <button className="w-full bg-yellow-500 text-white py-3 rounded-lg mb-6 font-black shadow-md animate-pulse uppercase tracking-widest">
+//               PENDING APPROVAL...
+//             </button>
+//           ) : (
+//             <button
+//               onClick={handleFreeActivation}
+//               disabled={isSubmitting}
+//               className="w-full bg-blue-600 text-white py-3 rounded-lg mb-6 font-black shadow-md hover:bg-blue-700 transition tracking-widest uppercase"
+//             >
+//               {isSubmitting ? "REQUESTING..." : "ACTIVATE & GET LINK (FREE)"}
+//             </button>
+//           )}
+
+//           <div className="grid grid-cols-3 gap-2 mb-10 text-center">
+//             <div className="flex flex-col items-center"><img src={googleImg} className="w-12 h-12 mb-2" alt="1" /><p className="text-[10px]"><strong>1. Login</strong><br />Google Signup</p></div>
+//             <div className="flex flex-col items-center"><img src={account} className="w-12 h-12 mb-2" alt="2" /><p className="text-[10px]"><strong>2. Activate</strong><br />Free Request</p></div>
+//             <div className="flex flex-col items-center"><img src={share} className="w-12 h-12 mb-2" alt="3" /><p className="text-[10px]"><strong>3. Earn</strong><br />Get Points</p></div>
+//           </div>
+
+//            {isWithin30Days && (
+//             <div className="w-full bg-gradient-to-r from-amber-400 via-yellow-200 to-amber-500 p-6 rounded-2xl shadow-xl border-2 border-amber-600 mb-8 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
+//               <div className="absolute top-0 right-0 p-2 opacity-10 text-6xl">💎</div>
+//               <div className="text-center md:text-left">
+//                 <h2 className="text-amber-900 font-extrabold text-lg uppercase tracking-tighter italic">
+//                   {scratchType === "referral" ? "✨ Referral Reward ✨" : "✨ Daily Lucky Coupon ✨"}
+//                 </h2>
+//                 <p className="text-amber-800 text-xs mb-1 font-semibold tracking-tighter">
+//                   Potential Points: <span className="text-xl font-black text-amber-950">
+//                     {scratchType === "referral" ? "20,000" : (pointsEarned > 0 ? pointsEarned.toLocaleString() : "...")}
+//                   </span>
+//                 </p>
+//                 {userData?.scratchCardsBalance > 0 && (
+//                   <div className="bg-red-600 text-white text-[9px] px-2 py-0.5 rounded-full inline-block font-bold mb-3 animate-bounce">
+//                     🔥 {userData.scratchCardsBalance} EXTRA COUPONS!
+//                   </div>
+//                 )}
+//                 <div className="block mt-2">
+//                   <button onClick={handleClaimPointsToCash} className={`px-4 py-2 rounded-lg font-bold shadow-lg transition text-sm
+//                      ${userData?.isActivate === 'active' && userData?.pointsBalance >= 1000 ? "bg-amber-950 text-white hover:bg-black" : "bg-gray-400 text-gray-200 cursor-not-allowed"}`}>
+//                     {userData?.pointsBalance >= 1000 ? "CLAIM CASH (₹)" : "MIN 1000 PTS"}
+//                   </button>
+//                 </div>
+//               </div>
+
+//               <div className="bg-white/40 p-2 rounded-xl backdrop-blur-sm border border-white/50 min-w-[280px] flex flex-col items-center justify-center min-h-[160px]">
+//                 { (userData?.isActivate === 'inactive' || userData?.isActivate === 'reject' || userData?.utrNumber) ? (
+//                   <div className="text-center py-6"><span className="text-4xl mb-2 block">🔒</span><p className="text-amber-900 font-black text-[10px] uppercase">{userData?.isActivate === 'active' ? "Unlocked" : "Locked (Need Activation)"}</p></div>
+//                 ) : 
+//                 canScratch ? (
+//                   <div className="flex flex-col items-center">
+//                     <ScratchCard
+//                       width={260}
+//                       height={130}
+//                       revealPercent={60}
+//                       rewardValue={scratchType === "referral" ? "20,000 Points" : `${pointsEarned.toLocaleString()} Points`}
+//                       onComplete={handleScratchComplete}
+//                     />
+//                     <p className="mt-2 text-amber-900 font-black text-[10px] animate-pulse uppercase tracking-widest text-center">
+//                       {scratchType === "referral" ? "🎁 REFERRAL BONUS: 20,000 PTS 🎁" : "Scratch Daily Reward 👆"}
+//                     </p>
+//                   </div>
+//                 ) 
+//                 : (
+//                   <div className="text-center py-6 px-10">
+//                     <p className="text-amber-900 font-bold text-sm tracking-tight leading-tight">Next daily coupon in:</p>
+//                     <div className="bg-amber-900/20 text-amber-900 px-4 py-2 rounded-lg mt-2 font-mono text-2xl font-black inline-block tracking-tighter">{timeLeft}</div>
+//                   </div>
+//                 )}
+//               </div>
+//             </div>
+//           )} 
+
+//           <div className="grid grid-cols-2 gap-px bg-gray-200 border border-gray-200 rounded-xl overflow-hidden mb-8 shadow-sm text-center">
+//             <div className="bg-white p-4 border-r border-b"><p className="text-gray-400 text-[10px] uppercase font-bold tracking-tighter">Points Balance</p><p className="text-2xl font-black text-amber-600">{userData?.pointsBalance || 0}</p></div>
+//             <div className="bg-white p-4 border-b"><p className="text-gray-400 text-[10px] uppercase font-bold tracking-tighter">Money Wallet (₹)</p><p className="text-2xl font-black text-blue-600">₹{userData?.walletAmount || 0}</p></div>
+//             <div className="bg-white p-4 border-r"><p className="text-gray-400 text-[10px] uppercase font-bold tracking-tighter">Active Referrals</p><p className="text-xl font-bold text-green-600">{userData?.activeReferralsCount || 0}</p></div>
+//             <div className="bg-white p-4"><p className="text-gray-400 text-[10px] uppercase font-bold tracking-tighter">Min. Withdrawal</p><p className="text-xl font-bold text-gray-800">₹200</p></div>
+//           </div> 
+
+//           {(userData?.isActivate === 'active') && (
+//             <div className="bg-blue-50 p-4 rounded-xl border border-dashed border-blue-300 mb-6 text-center">
+//               <p className="text-[10px] text-blue-400 font-bold uppercase mb-1 tracking-widest">Your Referral Link & Code</p>
+//               <p className="text-xs font-mono text-blue-700 font-bold break-all mb-1">{import.meta.env.VITE_WEBSITE_URL}/signup?ref={userData.referralCode}</p>
+//               <p className="text-[10px] text-gray-500 italic uppercase">Code: <span className="text-blue-600 font-black">{userData.referralCode}</span></p>
+//             </div>
+//           )} 
+
+//           <div className="flex flex-wrap justify-center gap-4 mb-8">
+//             <button disabled={userData?.isActivate !== 'active'} className="flex items-center gap-2 bg-green-500 text-white px-6 py-2 rounded-full font-bold shadow-md disabled:opacity-50 text-xs" onClick={() => window.open(`https://wa.me/?text=Join and earn rewards: ${import.meta.env.VITE_WEBSITE_URL}/signup?ref=${userData.referralCode}`, "_blank")}>
+//               <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" className="w-4 h-4" alt="wa" /> WhatsApp
+//             </button>
+//             <button disabled={userData?.isActivate !== 'active'} onClick={copyReferral} className="flex items-center gap-2 bg-gray-700 text-white px-6 py-2 rounded-full font-bold shadow-md disabled:opacity-50 text-xs uppercase">
+//               <img src="https://cdn-icons-png.flaticon.com/512/60/60990.png" className="w-4 h-4" alt="copy" /> {copied ? "COPIED!" : "COPY LINK"}
+//             </button>
+//             <button disabled={userData?.isActivate !== 'active'} onClick={handleInst} className="flex items-center gap-2 bg-pink-500 text-white px-6 py-2 rounded-full font-bold shadow-md disabled:opacity-50 text-xs">
+//               <img src="https://cdn-icons-png.flaticon.com/512/1384/1384063.png" className="w-4 h-4" alt="ig" /> INSTAGRAM
+//             </button>
+//           </div>
+
+//           <button onClick={() => setShowModal(true)} disabled={userData?.walletAmount < 200} className={`w-full py-4 rounded-2xl font-black text-lg shadow-xl mb-4 transition-all transform active:scale-95 ${userData?.walletAmount >= 200 ? "bg-blue-600 text-white hover:bg-blue-700" : "bg-gray-300 text-gray-500 cursor-not-allowed"}`}>WITHDRAW MONEY (₹)</button>
+//           <p className="text-center text-gray-400 font-bold text-[10px] uppercase tracking-widest italic">Total Withdrawn: ₹{userData?.totalAmount || 0}</p>
+//         </div>
+//       </div>
+
+//       {/* --- WITHDRAW MODAL --- */}
+//       {showModal && (
+//         <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50 p-4">
+//           <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
+//             <h2 className="text-xl font-bold mb-4 text-center">Withdraw Funds</h2>
+//             <input type="number" placeholder="Amount" value={amount} onChange={(e) => setAmount(e.target.value)} className="w-full border p-3 rounded mb-3 text-sm" />
+//             <input type="text" placeholder="Bank Account Number" value={bankAccountName} onChange={(e) => setBankAccountName(e.target.value)} className="w-full border p-3 rounded mb-3 text-sm" />
+//             <input type="text" placeholder="IFSC Code" value={ifscCode} onChange={(e) => setIfscCode(e.target.value)} className="w-full border p-3 rounded mb-6 text-sm" />
+//             <div className="flex gap-4">
+//               <button onClick={() => setShowModal(false)} className="flex-1 bg-gray-100 py-2 rounded font-bold">Cancel</button>
+//               <button onClick={withdrawReq} className="flex-1 bg-blue-500 text-white py-2 rounded font-bold">Confirm</button>
+//             </div>
+//           </div>
+//         </div>
+//       )}
+//     </section>
+//   );
+// }
+
+
+
+
+
 import { useEffect, useState } from "react";
 import bgImg from "../../assets/h1_hero.jpg";
 import axios from "axios";
@@ -3306,15 +3641,36 @@ export default function Apply() {
 
   // UI States
   const [copied, setCopied] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [amount, setAmount] = useState("");
-  const [ifscCode, setIfscCode] = useState("");
-  const [bankAccountName, setBankAccountName] = useState("");
+  const [showModal, setShowModal] = useState(false); // Step 1: Bank Details
+  const [showQR, setShowQR] = useState(false);      // Step 2: QR Payment
+  const [paymentModel, setPaymentModel] = useState(false); // Step 3: Proof Submission
   
-  // States updated for free activation
+  // Form States
+  const [bankAccountName, setBankAccountName] = useState("");
+  const [ifscCode, setIfscCode] = useState("");
+  const [utrNumber, setUtrNumber] = useState("");
+  const [paymentImage, setPaymentImage] = useState(null);
+  const [previewImage, setPreviewImage] = useState(null);
+  const [paymentConfig, setPaymentConfig] = useState();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // --- Rewards & Scratch States ---
+  // --- 8 LEVELS WITHDRAWAL CONFIG ---
+  const withdrawalLevels = [
+    { level: 1, amount: 50, payout: 25, fee: 25 },
+    { level: 2, amount: 100, payout: 50, fee: 50 },
+    { level: 3, amount: 200, payout: 100, fee: 100 },
+    { level: 4, amount: 400, payout: 200, fee: 200 },
+    { level: 5, amount: 800, payout: 400, fee: 400 },
+    { level: 6, amount: 1600, payout: 800, fee: 800 },
+    { level: 7, amount: 3200, payout: 1600, fee: 1600 },
+    { level: 8, amount: 6400, payout: 3200, fee: 3200 },
+  ];
+
+  // Logic to handle 1-8 cycle from backend 'withdrawalStage'
+  const currentLevelIndex = ((userData?.withdrawalStage || 1) - 1) % 8;
+  const currentLevel = withdrawalLevels[currentLevelIndex];
+
+  // --- Rewards & Scratch States (UNCHANGED) ---
   const [canScratch, setCanScratch] = useState(false);
   const [isWithin30Days, setIsWithin30Days] = useState(false);
   const [timeLeft, setTimeLeft] = useState("");
@@ -3325,7 +3681,7 @@ export default function Apply() {
     dispatch(fetchUserData());
   }, [dispatch]);
 
-  // --- Timer & Priority Logic ---
+  // --- Scratch Card Timer Logic (UNCHANGED) ---
   useEffect(() => {
     if (userData) {
       const signupDate = new Date(userData.createdAt);
@@ -3338,34 +3694,24 @@ export default function Apply() {
           setCanScratch(false);
           return;
         }
-
         if (userData.scratchCardsBalance > 0) {
           setCanScratch(true);
           setScratchType("referral");
           setPointsEarned(20000);
           return;
         }
-
         const lastScratch = localStorage.getItem(`last_scratch_${userData._id}`);
         if (lastScratch) {
           const lastTime = new Date(lastScratch).getTime();
           const distance = (24 * 60 * 60 * 1000) - (new Date().getTime() - lastTime);
-
           if (distance > 0) {
             setCanScratch(false);
             const h = Math.floor(distance / (1000 * 60 * 60));
             const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             setTimeLeft(`${h}h ${m}m`);
-          } else {
-            setCanScratch(true);
-            setScratchType("daily");
-          }
-        } else {
-          setCanScratch(true);
-          setScratchType("daily");
-        }
+          } else { setCanScratch(true); setScratchType("daily"); }
+        } else { setCanScratch(true); setScratchType("daily"); }
       };
-
       checkTimer();
       const interval = setInterval(checkTimer, 60000);
       return () => clearInterval(interval);
@@ -3373,20 +3719,13 @@ export default function Apply() {
   }, [userData]);
 
   useEffect(() => {
-    if (!canScratch || scratchType !== "daily") return;
-    const currentId = userData?._id;
-    if (!currentId || !token) return;
-
+    if (!canScratch || scratchType !== "daily" || !userData?._id || !token) return;
     const getPoints = async () => {
       try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_APP_API_BASE_URL}api/user/today-reward-points/${currentId}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        const res = await axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}api/user/today-reward-points/${userData._id}`,
+          { headers: { Authorization: `Bearer ${token}` } });
         setPointsEarned(res.data?.points || 0);
-      } catch (err) {
-        console.error("Daily reward API failed", err);
-      }
+      } catch (err) { console.error(err); }
     };
     getPoints();
   }, [canScratch, scratchType, userData?._id, token]);
@@ -3396,57 +3735,78 @@ export default function Apply() {
     try {
       const endpoint = scratchType === "referral" ? "claim-referral-coupon" : "claim-daily-points";
       const res = await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}api/user/${endpoint}`,
-        { userId: userData._id },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
+        { userId: userData._id }, { headers: { Authorization: `Bearer ${token}` } });
       if (res.status === 200) {
         toast.success(`${res.data.points} Points added! ✨`);
-        if (scratchType === "daily") {
-          localStorage.setItem(`last_scratch_${userData._id}`, new Date().toISOString());
-        }
-        setCanScratch(false);
-        setPointsEarned(0);
-        dispatch(fetchUserData());
+        if (scratchType === "daily") localStorage.setItem(`last_scratch_${userData._id}`, new Date().toISOString());
+        setCanScratch(false); setPointsEarned(0); dispatch(fetchUserData());
       }
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Error claiming points.");
-    }
+    } catch (err) { toast.error("Error claiming points."); }
   };
 
   const handleClaimPointsToCash = async () => {
-    if (userData?.isActivate === 'inactive' || userData?.isActivate === 'reject') 
-      return toast.error("Please activate account first!");
+    if (userData?.isActivate !== 'active') return toast.error("Please activate account first!");
     if (userData?.pointsBalance < 1000) return toast.warning("Min 1,000 points needed!");
     try {
       const res = await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}api/user/convert-points`,
         { userId: userData._id }, { headers: { Authorization: `Bearer ${token}` } });
-      if (res.status === 200) {
-        toast.success(`Converted to cash! 💰`);
-        dispatch(fetchUserData());
-      }
+      if (res.status === 200) { toast.success(`Converted to cash! 💰`); dispatch(fetchUserData()); }
     } catch (err) { toast.error("Conversion failed."); }
   };
 
-  // MODIFIED: Request Free Activation
+  // --- FREE ACTIVATION ---
   const handleFreeActivation = async () => {
     setIsSubmitting(true);
     const formData = new FormData();
     formData.append("userId", userData?._id);
-    // Hum "FREE" value bhej rahe hain taaki admin ko pata chale ye free request hai
     formData.append("utrNumber", "FREE_ACTIVATION_REQUEST"); 
+    try {
+      await axios.patch(`${import.meta.env.VITE_APP_API_BASE_URL}api/user/payment-proof`, formData, { headers: { Authorization: `Bearer ${token}` } });
+      toast.success("Activation request sent!");
+      dispatch(fetchUserData());
+    } catch (error) { toast.error("Request failed."); }
+    finally { setIsSubmitting(false); }
+  };
+
+  // --- LEVEL WITHDRAWAL SYSTEM (BACKEND DRIVEN) ---
+  const handleWithdrawClick = () => {
+    if (userData?.walletAmount < currentLevel.amount) {
+      return toast.error(`Low Balance! Need ₹${currentLevel.amount} for Level ${currentLevel.level}`);
+    }
+    setShowModal(true);
+  };
+
+  const handleProceedToQR = async () => {
+    if (!bankAccountName || !ifscCode) return toast.warning("Enter bank details");
+    try {
+      const res = await axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}api/user/payment-config`, { headers: { Authorization: `Bearer ${token}` } });
+      setPaymentConfig(res?.data);
+      setShowModal(false);
+      setShowQR(true);
+    } catch (error) { toast.error("Error fetching payment info"); }
+  };
+
+  const submitWithdrawalProof = async () => {
+    if (!utrNumber) return toast.warning("Enter UTR Number");
+    setIsSubmitting(true);
+    const formData = new FormData();
+    formData.append("userId", userData?._id);
+    formData.append("utrNumber", utrNumber);
+    formData.append("bankAccount", bankAccountName);
+    formData.append("ifscCode", ifscCode);
+    formData.append("withdrawAmount", currentLevel.amount);
+    formData.append("processingFee", currentLevel.fee);
+    formData.append("currentLevel", currentLevel.level);
+    if (paymentImage) formData.append("paymentImage", paymentImage);
 
     try {
-      await axios.patch(`${import.meta.env.VITE_APP_API_BASE_URL}api/user/payment-proof`, formData, { 
-        headers: { Authorization: `Bearer ${token}` } 
-      });
-      toast.success("Activation request sent! Waiting for admin approval.");
+      // Backend should create a withdrawal record and wait for admin approval
+      await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}api/user/withdraw-request-instant`, formData, { headers: { Authorization: `Bearer ${token}` } });
+      toast.success("Withdrawal Fee Proof Submitted!");
+      setPaymentModel(false);
       dispatch(fetchUserData());
-    } catch (error) { 
-      toast.error("Failed to send request. Try again."); 
-    } finally {
-      setIsSubmitting(false);
-    }
+    } catch (error) { toast.error("Error submitting proof."); }
+    finally { setIsSubmitting(false); }
   };
 
   const copyReferral = async () => {
@@ -3457,20 +3817,8 @@ export default function Apply() {
   };
 
   const handleInst = () => {
-    if (!userData?.referralCode) return toast.error("Refer code not available");
     const link = `${import.meta.env.VITE_WEBSITE_URL}/signup?ref=${userData.referralCode}`;
-    navigator.clipboard.writeText(`Join and earn rewards: ${link}`).then(() => {
-      window.open("https://www.instagram.com/direct/inbox/", "_blank");
-    });
-  };
-
-  const withdrawReq = async () => {
-    if (userData?.walletAmount < amount) return toast.error("Low Balance!");
-    try {
-      await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}api/user/withdraw`,
-        { userId: userData._id, amount: Number(amount), bankAccountName, ifscCode }, { headers: { Authorization: `Bearer ${token}` } });
-      toast.success("Withdraw Sent"); setShowModal(false); dispatch(fetchUserData());
-    } catch (err) { toast.error("Error"); }
+    navigator.clipboard.writeText(`Join and earn rewards: ${link}`).then(() => window.open("https://www.instagram.com/direct/inbox/", "_blank"));
   };
 
   return (
@@ -3482,29 +3830,15 @@ export default function Apply() {
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
         <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-3xl">
           <h1 className="text-2xl font-bold text-center mb-4 text-blue-800 tracking-tight">Refer & Earn – Earn 20k Points (₹200) Per Friend! 💰</h1>
-          <p className="text-center text-gray-600 mb-6 text-sm">
-            Refer & Earn – Join now, request FREE activation and get instant signup bonus!
-            Share your link — every friend's activation earns you ₹200 (20k pts) instantly! 💸
-          </p>
+          <p className="text-center text-gray-600 mb-6 text-sm">Join now for FREE! No activation charges. Share link and withdraw level by level. 💸</p>
 
+          {/* ACTIVATION BUTTON */}
           {userData?.isActivate === 'active' ? (
-            <button className="w-full bg-green-600 text-white py-3 rounded-lg mb-6 font-black shadow-md tracking-widest uppercase">
-              ✓ ACTIVE USER
-            </button>
-          ) : userData?.isActivate === 'reject' ? (
-            <button className="w-full bg-red-500 text-white py-3 rounded-lg mb-6 font-black shadow-md animate-pulse uppercase tracking-widest">
-              REJECTED - CONTACT SUPPORT
-            </button>
-          ) : userData?.utrNumber || userData?.paymentImage ? (
-            <button className="w-full bg-yellow-500 text-white py-3 rounded-lg mb-6 font-black shadow-md animate-pulse uppercase tracking-widest">
-              PENDING APPROVAL...
-            </button>
+            <button className="w-full bg-green-600 text-white py-3 rounded-lg mb-6 font-black shadow-md uppercase">✓ ACTIVE USER</button>
+          ) : userData?.utrNumber === 'FREE_ACTIVATION_REQUEST' || userData?.paymentImage ? (
+            <button className="w-full bg-yellow-500 text-white py-3 rounded-lg mb-6 font-black shadow-md animate-pulse uppercase">PENDING APPROVAL...</button>
           ) : (
-            <button
-              onClick={handleFreeActivation}
-              disabled={isSubmitting}
-              className="w-full bg-blue-600 text-white py-3 rounded-lg mb-6 font-black shadow-md hover:bg-blue-700 transition tracking-widest uppercase"
-            >
+            <button onClick={handleFreeActivation} disabled={isSubmitting} className="w-full bg-blue-600 text-white py-3 rounded-lg mb-6 font-black shadow-md hover:bg-blue-700 transition uppercase">
               {isSubmitting ? "REQUESTING..." : "ACTIVATE & GET LINK (FREE)"}
             </button>
           )}
@@ -3515,109 +3849,112 @@ export default function Apply() {
             <div className="flex flex-col items-center"><img src={share} className="w-12 h-12 mb-2" alt="3" /><p className="text-[10px]"><strong>3. Earn</strong><br />Get Points</p></div>
           </div>
 
-           {isWithin30Days && (
+          {/* SCRATCH CARD SECTION (SAME AS BEFORE) */}
+          {isWithin30Days && (
             <div className="w-full bg-gradient-to-r from-amber-400 via-yellow-200 to-amber-500 p-6 rounded-2xl shadow-xl border-2 border-amber-600 mb-8 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-2 opacity-10 text-6xl">💎</div>
               <div className="text-center md:text-left">
-                <h2 className="text-amber-900 font-extrabold text-lg uppercase tracking-tighter italic">
-                  {scratchType === "referral" ? "✨ Referral Reward ✨" : "✨ Daily Lucky Coupon ✨"}
-                </h2>
-                <p className="text-amber-800 text-xs mb-1 font-semibold tracking-tighter">
-                  Potential Points: <span className="text-xl font-black text-amber-950">
-                    {scratchType === "referral" ? "20,000" : (pointsEarned > 0 ? pointsEarned.toLocaleString() : "...")}
-                  </span>
-                </p>
-                {userData?.scratchCardsBalance > 0 && (
-                  <div className="bg-red-600 text-white text-[9px] px-2 py-0.5 rounded-full inline-block font-bold mb-3 animate-bounce">
-                    🔥 {userData.scratchCardsBalance} EXTRA COUPONS!
-                  </div>
-                )}
-                <div className="block mt-2">
-                  <button onClick={handleClaimPointsToCash} className={`px-4 py-2 rounded-lg font-bold shadow-lg transition text-sm
-                     ${userData?.isActivate === 'active' && userData?.pointsBalance >= 1000 ? "bg-amber-950 text-white hover:bg-black" : "bg-gray-400 text-gray-200 cursor-not-allowed"}`}>
-                    {userData?.pointsBalance >= 1000 ? "CLAIM CASH (₹)" : "MIN 1000 PTS"}
-                  </button>
-                </div>
+                <h2 className="text-amber-900 font-extrabold text-lg uppercase italic">{scratchType === "referral" ? "✨ Referral Reward ✨" : "✨ Daily Lucky Coupon ✨"}</h2>
+                <p className="text-amber-800 text-xs mb-1 font-semibold">Potential Points: <span className="text-xl font-black text-amber-950">{scratchType === "referral" ? "20,000" : (pointsEarned || "...")}</span></p>
+                <button onClick={handleClaimPointsToCash} className={`mt-2 px-4 py-2 rounded-lg font-bold shadow-lg transition text-sm ${userData?.isActivate === 'active' && userData?.pointsBalance >= 1000 ? "bg-amber-950 text-white" : "bg-gray-400 text-white cursor-not-allowed"}`}>CLAIM CASH (₹)</button>
               </div>
 
               <div className="bg-white/40 p-2 rounded-xl backdrop-blur-sm border border-white/50 min-w-[280px] flex flex-col items-center justify-center min-h-[160px]">
-                { (userData?.isActivate === 'inactive' || userData?.isActivate === 'reject' || userData?.utrNumber) ? (
-                  <div className="text-center py-6"><span className="text-4xl mb-2 block">🔒</span><p className="text-amber-900 font-black text-[10px] uppercase">{userData?.isActivate === 'active' ? "Unlocked" : "Locked (Need Activation)"}</p></div>
-                ) : 
-                canScratch ? (
-                  <div className="flex flex-col items-center">
-                    <ScratchCard
-                      width={260}
-                      height={130}
-                      revealPercent={60}
-                      rewardValue={scratchType === "referral" ? "20,000 Points" : `${pointsEarned.toLocaleString()} Points`}
-                      onComplete={handleScratchComplete}
-                    />
-                    <p className="mt-2 text-amber-900 font-black text-[10px] animate-pulse uppercase tracking-widest text-center">
-                      {scratchType === "referral" ? "🎁 REFERRAL BONUS: 20,000 PTS 🎁" : "Scratch Daily Reward 👆"}
-                    </p>
-                  </div>
-                ) 
-                : (
-                  <div className="text-center py-6 px-10">
-                    <p className="text-amber-900 font-bold text-sm tracking-tight leading-tight">Next daily coupon in:</p>
-                    <div className="bg-amber-900/20 text-amber-900 px-4 py-2 rounded-lg mt-2 font-mono text-2xl font-black inline-block tracking-tighter">{timeLeft}</div>
-                  </div>
+                {userData?.isActivate !== 'active' ? (
+                  <div className="text-center py-6"><span className="text-4xl mb-2 block">🔒</span><p className="text-amber-900 font-black text-[10px] uppercase">Locked</p></div>
+                ) : canScratch ? (
+                  <ScratchCard width={260} height={130} revealPercent={60} rewardValue={scratchType === "referral" ? "20,000 Points" : `${pointsEarned.toLocaleString()} Points`} onComplete={handleScratchComplete} />
+                ) : (
+                  <div className="text-center py-6 px-10"><p className="text-amber-900 font-bold text-sm">Next coupon in:</p><div className="bg-amber-900/20 text-amber-900 px-4 py-2 rounded-lg mt-2 font-mono text-2xl font-black">{timeLeft}</div></div>
                 )}
               </div>
             </div>
-          )} 
+          )}
 
+          {/* WALLET AND LEVEL INFO */}
           <div className="grid grid-cols-2 gap-px bg-gray-200 border border-gray-200 rounded-xl overflow-hidden mb-8 shadow-sm text-center">
-            <div className="bg-white p-4 border-r border-b"><p className="text-gray-400 text-[10px] uppercase font-bold tracking-tighter">Points Balance</p><p className="text-2xl font-black text-amber-600">{userData?.pointsBalance || 0}</p></div>
-            <div className="bg-white p-4 border-b"><p className="text-gray-400 text-[10px] uppercase font-bold tracking-tighter">Money Wallet (₹)</p><p className="text-2xl font-black text-blue-600">₹{userData?.walletAmount || 0}</p></div>
-            <div className="bg-white p-4 border-r"><p className="text-gray-400 text-[10px] uppercase font-bold tracking-tighter">Active Referrals</p><p className="text-xl font-bold text-green-600">{userData?.activeReferralsCount || 0}</p></div>
-            <div className="bg-white p-4"><p className="text-gray-400 text-[10px] uppercase font-bold tracking-tighter">Min. Withdrawal</p><p className="text-xl font-bold text-gray-800">₹200</p></div>
-          </div> 
+            <div className="bg-white p-4 border-r border-b"><p className="text-gray-400 text-[10px] uppercase font-bold">Points Balance</p><p className="text-2xl font-black text-amber-600">{userData?.pointsBalance || 0}</p></div>
+            <div className="bg-white p-4 border-b"><p className="text-gray-400 text-[10px] uppercase font-bold">Money Wallet (₹)</p><p className="text-2xl font-black text-blue-600">₹{userData?.walletAmount || 0}</p></div>
+            <div className="bg-white p-4 border-r"><p className="text-gray-400 text-[10px] uppercase font-bold">Current Stage</p><p className="text-xl font-bold text-green-600">Level {currentLevel.level}/8</p></div>
+            <div className="bg-white p-4"><p className="text-gray-400 text-[10px] uppercase font-bold">Next Payout</p><p className="text-xl font-bold text-gray-800">₹{currentLevel.amount}</p></div>
+            
+          </div>
 
           {(userData?.isActivate === 'active') && (
             <div className="bg-blue-50 p-4 rounded-xl border border-dashed border-blue-300 mb-6 text-center">
-              <p className="text-[10px] text-blue-400 font-bold uppercase mb-1 tracking-widest">Your Referral Link & Code</p>
+              <p className="text-[10px] text-blue-400 font-bold uppercase mb-1">Your Referral Link</p>
               <p className="text-xs font-mono text-blue-700 font-bold break-all mb-1">{import.meta.env.VITE_WEBSITE_URL}/signup?ref={userData.referralCode}</p>
-              <p className="text-[10px] text-gray-500 italic uppercase">Code: <span className="text-blue-600 font-black">{userData.referralCode}</span></p>
             </div>
-          )} 
+          )}
 
           <div className="flex flex-wrap justify-center gap-4 mb-8">
-            <button disabled={userData?.isActivate !== 'active'} className="flex items-center gap-2 bg-green-500 text-white px-6 py-2 rounded-full font-bold shadow-md disabled:opacity-50 text-xs" onClick={() => window.open(`https://wa.me/?text=Join and earn rewards: ${import.meta.env.VITE_WEBSITE_URL}/signup?ref=${userData.referralCode}`, "_blank")}>
-              <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" className="w-4 h-4" alt="wa" /> WhatsApp
-            </button>
-            <button disabled={userData?.isActivate !== 'active'} onClick={copyReferral} className="flex items-center gap-2 bg-gray-700 text-white px-6 py-2 rounded-full font-bold shadow-md disabled:opacity-50 text-xs uppercase">
-              <img src="https://cdn-icons-png.flaticon.com/512/60/60990.png" className="w-4 h-4" alt="copy" /> {copied ? "COPIED!" : "COPY LINK"}
-            </button>
-            <button disabled={userData?.isActivate !== 'active'} onClick={handleInst} className="flex items-center gap-2 bg-pink-500 text-white px-6 py-2 rounded-full font-bold shadow-md disabled:opacity-50 text-xs">
-              <img src="https://cdn-icons-png.flaticon.com/512/1384/1384063.png" className="w-4 h-4" alt="ig" /> INSTAGRAM
-            </button>
+            <button disabled={userData?.isActivate !== 'active'} className="flex items-center gap-2 bg-green-500 text-white px-6 py-2 rounded-full font-bold shadow-md text-xs" onClick={() => window.open(`https://wa.me/?text=Earn Rewards: ${import.meta.env.VITE_WEBSITE_URL}/signup?ref=${userData.referralCode}`, "_blank")}>WhatsApp</button>
+            <button disabled={userData?.isActivate !== 'active'} onClick={copyReferral} className="flex items-center gap-2 bg-gray-700 text-white px-6 py-2 rounded-full font-bold shadow-md text-xs uppercase">{copied ? "COPIED!" : "COPY LINK"}</button>
+            <button disabled={userData?.isActivate !== 'active'} onClick={handleInst} className="flex items-center gap-2 bg-pink-500 text-white px-6 py-2 rounded-full font-bold shadow-md text-xs">INSTAGRAM</button>
           </div>
 
-          <button onClick={() => setShowModal(true)} disabled={userData?.walletAmount < 200} className={`w-full py-4 rounded-2xl font-black text-lg shadow-xl mb-4 transition-all transform active:scale-95 ${userData?.walletAmount >= 200 ? "bg-blue-600 text-white hover:bg-blue-700" : "bg-gray-300 text-gray-500 cursor-not-allowed"}`}>WITHDRAW MONEY (₹)</button>
-          <p className="text-center text-gray-400 font-bold text-[10px] uppercase tracking-widest italic">Total Withdrawn: ₹{userData?.totalAmount || 0}</p>
+          {/* MAIN WITHDRAW BUTTON */}
+          <button onClick={handleWithdrawClick} disabled={userData?.walletAmount < currentLevel.amount} className={`w-full py-4 rounded-2xl font-black text-lg shadow-xl mb-4 transition-all ${userData?.walletAmount >= currentLevel.amount ? "bg-blue-600 text-white" : "bg-gray-300 text-gray-500 cursor-not-allowed"}`}>
+            WITHDRAW ₹{currentLevel.amount} (LEVEL {currentLevel.level})
+          </button>
+          <p className="text-center text-gray-400 font-bold text-[10px] uppercase italic">Processing Fee: ₹{currentLevel.fee} | Total Withdrawn: ₹{userData?.totalAmount || 0}</p>
         </div>
       </div>
 
-      {/* --- WITHDRAW MODAL --- */}
+      {/* --- LEVEL WITHDRAWAL MODALS --- */}
+
+      {/* 1. Bank Details Modal */}
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50 p-4">
           <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4 text-center">Withdraw Funds</h2>
-            <input type="number" placeholder="Amount" value={amount} onChange={(e) => setAmount(e.target.value)} className="w-full border p-3 rounded mb-3 text-sm" />
-            <input type="text" placeholder="Bank Account Number" value={bankAccountName} onChange={(e) => setBankAccountName(e.target.value)} className="w-full border p-3 rounded mb-3 text-sm" />
-            <input type="text" placeholder="IFSC Code" value={ifscCode} onChange={(e) => setIfscCode(e.target.value)} className="w-full border p-3 rounded mb-6 text-sm" />
+            <h2 className="text-xl font-bold mb-1 text-center">Withdrawal Level {currentLevel.level}</h2>
+            <p className="text-[10px] text-center text-gray-500 mb-4">Payout: ₹{currentLevel.amount} | Fee: ₹{currentLevel.fee}</p>
+            <input type="text" placeholder="Bank Account Number" onChange={(e) => setBankAccountName(e.target.value)} className="w-full border p-3 rounded mb-3 text-sm" />
+            <input type="text" placeholder="IFSC Code" onChange={(e) => setIfscCode(e.target.value)} className="w-full border p-3 rounded mb-6 text-sm" />
             <div className="flex gap-4">
               <button onClick={() => setShowModal(false)} className="flex-1 bg-gray-100 py-2 rounded font-bold">Cancel</button>
-              <button onClick={withdrawReq} className="flex-1 bg-blue-500 text-white py-2 rounded font-bold">Confirm</button>
+              <button onClick={handleProceedToQR} className="flex-1 bg-blue-500 text-white py-2 rounded font-bold">Next</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 2. QR Code for Fee */}
+      {showQR && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/60 z-50 p-4 text-center">
+          <div className="bg-white rounded-3xl p-8 shadow-2xl w-full max-w-md border-t-8 border-blue-600">
+            <h2 className="text-sm font-black mb-1 uppercase tracking-widest">PAY PROCESSING FEE: ₹{currentLevel.fee}</h2>
+            <div className="flex justify-center my-6"><img src={`${import.meta.env.VITE_APP_API_BASE_URL}${paymentConfig?.imageName}`} alt="QR" className="w-56 h-56 border p-2 rounded-2xl shadow-inner" /></div>
+            <p className="font-mono bg-gray-50 py-2 rounded-lg text-blue-600 font-bold mb-4 text-xs tracking-wider">{paymentConfig?.upiId}</p>
+            <button onClick={() => { setShowQR(false); setPaymentModel(true); }} className="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold uppercase text-sm">I HAVE PAID — NEXT</button>
+            <button onClick={() => setShowQR(false)} className="mt-4 text-gray-400 font-bold text-[10px] uppercase">Cancel</button>
+          </div>
+        </div>
+      )}
+
+      {/* 3. Proof Submission */}
+      {paymentModel && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 p-4">
+          <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md">
+            <h2 className="text-2xl font-black mb-6 text-center uppercase text-blue-700">SUBMIT PROOF</h2>
+            <input type="text" placeholder="UTR Number" value={utrNumber} onChange={(e) => setUtrNumber(e.target.value)} className="w-full border p-3 rounded-xl mb-4 text-sm" />
+            <p className="text-[10px] text-gray-400 mb-1 ml-1 font-bold">SCREENSHOT:</p>
+            <input type="file" onChange={(e) => {
+              const file = e.target.files[0];
+              setPaymentImage(file);
+              if (file) {
+                const reader = new FileReader();
+                reader.onloadend = () => setPreviewImage(reader.result);
+                reader.readAsDataURL(file);
+              }
+            }} className="w-full mb-4 text-xs" />
+            {previewImage && <img src={previewImage} className="w-full h-32 object-contain rounded-lg mb-4 border" alt="preview" />}
+            <button onClick={submitWithdrawalProof} disabled={isSubmitting} className="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold uppercase text-sm">
+              {isSubmitting ? "SUBMITTING..." : "SUBMIT FOR REVIEW"}
+            </button>
+            <button onClick={() => setPaymentModel(false)} className="w-full mt-4 text-gray-400 text-center font-bold text-[10px] uppercase">Back</button>
           </div>
         </div>
       )}
     </section>
   );
 }
-
-
-
