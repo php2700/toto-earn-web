@@ -1,4 +1,4 @@
-import adImg from "../../assets/toto-ad.png";
+import adImg from "../../assets/totoimage.png";
 import { useNavigate } from "react-router-dom";
 import { FiArrowLeft } from "react-icons/fi";
 
@@ -24,7 +24,9 @@ const Upcoming = () => {
             🚧 Coming Soon 🚧
           </h1>
           <p className="text-center text-gray-500 mb-8">
-            We’re working hard to bring you something amazing. Stay tuned!
+            {/* We’re working hard to bring you something amazing. Stay tuned! */}
+            This system is developed on an affiliate marketing model, where users become part of a large and growing community. By joining the platform, members receive Daily Lucky Coupons, multiple rewards, and various earning opportunities. The platform also focuses on the promotion and sale of digital courses and digital products.
+All rewards, offers, and features provided under this system are subject to availability and platform policies. The company reserves the full right to modify, pause, or stop this system, including rewards, coupons, and affiliate benefits, at any time without prior notice. This ensures smooth operation, compliance, and long-term sustainability of the platform
           </p>
 
           <div className="overflow-hidden rounded-2xl">
