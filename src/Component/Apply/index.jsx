@@ -5765,7 +5765,7 @@ export default function Apply() {
       </div>
 
       {/* --- MODALS (Responsive Scaling) --- */}
-      {showModal && (
+      {/* {showModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/70 z-50 p-4 backdrop-blur-sm">
           <div className="bg-white rounded-[2rem] p-6 md:p-10 shadow-2xl w-full max-w-sm border-t-8 border-indigo-600 relative">
             <div className="text-center mt-4">
@@ -5780,7 +5780,36 @@ export default function Apply() {
             </div>
           </div>
         </div>
-      )}
+      )} */}
+      {/* --- MODAL (Congratulations fix) --- */}
+{showModal && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black/70 z-50 p-4 backdrop-blur-sm">
+    <div className="bg-white rounded-[2.5rem] p-6 md:p-10 shadow-2xl w-full max-w-sm border-t-8 border-indigo-600 relative overflow-visible">
+      
+      {/* 1. attractive header image (Top par) */}
+      <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-48 text-center pointer-events-none">
+         <img src={congs} alt="congrats" className="w-40 h-auto animate-bounce inline-block drop-shadow-2xl" 
+              onError={(e) => e.target.style.display='none'} />
+      </div>
+      
+      {/* 2. Congratulations Stylized Text */}
+      <div className="text-center mt-6">
+          <h3 className="text-2xl font-black text-indigo-700 tracking-tighter uppercase italic drop-shadow-sm animate-pulse">Congratulations!</h3>
+          <div className="h-1 w-20 bg-indigo-100 mx-auto rounded-full my-2"></div>
+          <h2 className="text-lg font-bold text-gray-700 uppercase tracking-tight">Withdraw Level {currentLevel.level}</h2>
+          <p className="text-[15px] text-gray-400 font-bold mb-8 uppercase tracking-[0.2em]">Payout: ₹{currentLevel.amount}</p>
+      </div>
+
+      <input type="text" placeholder="Bank Account Number" onChange={(e) => setBankAccountName(e.target.value)} className="w-full bg-gray-50 border-2 border-gray-100 p-4 rounded-xl mb-4 text-xs focus:border-indigo-500 outline-none" />
+      <input type="text" placeholder="IFSC Code" onChange={(e) => setIfscCode(e.target.value)} className="w-full bg-gray-50 border-2 border-gray-100 p-4 rounded-xl mb-6 text-xs focus:border-indigo-500 outline-none" />
+      
+      <div className="flex gap-3">
+        <button onClick={() => setShowModal(false)} className="flex-1 bg-gray-100 py-3 rounded-xl font-black text-[10px] uppercase">Cancel</button>
+        <button onClick={handleProceedToQR} className="flex-1 bg-indigo-600 text-white py-3 rounded-xl font-black text-[10px] uppercase shadow-lg">Next Step</button>
+      </div>
+    </div>
+  </div>
+)}
 
       {showQR && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/80 z-50 p-4 backdrop-blur-md text-center">
