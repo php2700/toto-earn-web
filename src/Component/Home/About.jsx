@@ -68,9 +68,11 @@ const AboutSection = () => {
                 <img src={account} alt="Payment" />
               </div>
               <p className="text-gray-800">
-                <strong>Activate Account ₹100</strong>
+                <strong>Activate Account free ₹ 0</strong>
                 <br />
-                Once the payment is completed, your referral link will be
+                {/* Once the payment is completed, your referral link will be
+                unlocked instantly. */}
+                                 Your referral link will be
                 unlocked instantly.
               </p>
             </div>
