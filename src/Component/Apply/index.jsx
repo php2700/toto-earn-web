@@ -6051,6 +6051,9 @@ export default function Apply() {
           {/* <h1 className="text-xl md:text-2xl font-bold text-center mb-6 text-blue-800 tracking-tight">Refer & Earn – Dashboard 💰</h1> */}
           <h1 className="text-2xl font-bold text-center mb-4 text-blue-800 tracking-tight">Refer & Earn – Earn 20k Points (₹200) Per Friend! 💰</h1>
           <p className="text-center text-gray-600 mb-6 text-sm">Join now for FREE! No activation charges. Share link and withdraw level by level. 💸</p>
+          <button className="w-full bg-green-600 text-white py-3 rounded-lg mb-6 font-black shadow-md uppercase">✓ ACTIVE USER</button>
+          
+          
 
           {/* BALANCE GRID - LARGE FONTS RESTORED */}
           <div className="grid grid-cols-2 gap-px bg-gray-200 border border-gray-200 rounded-[1.5rem] md:rounded-[2rem] overflow-hidden mb-8 shadow-lg text-center">
