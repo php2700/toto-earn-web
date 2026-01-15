@@ -29,7 +29,45 @@ const Signup = () => {
     }
   }, []);
 
-  const handleLogin = useGoogleLogin({
+  // const handleLogin = useGoogleLogin({
+  //   onSuccess: async (tokenResponse) => {
+  //     try {
+  //       const res = await axios.post(
+  //         `${import.meta.env.VITE_APP_API_BASE_URL}api/user/google-login`,
+  //         { accessToken: tokenResponse?.access_token }
+  //       );
+
+  //       setTotoEarnToken(res?.data?.token);
+  //       dispatch(updateToken(res?.data?.token));
+  //       localStorage.setItem("totoToken", res?.data?.token);
+  //       localStorage.setItem("userId", res.data?.user?._id);
+
+  //       const storedRefCode = localStorage.getItem("referralCode");
+
+  //       if (!res?.data?.isAlreadyCreated && storedRefCode) {
+  //         await axios.patch(
+  //           `${import.meta.env.VITE_APP_API_BASE_URL}api/user/update-refferBy`,
+  //           {
+  //             _id: res.data?.user?._id,
+  //             referredBy: storedRefCode,
+  //           }
+  //         );
+  //         localStorage.removeItem("referralCode");
+  //         navigate("/apply");
+  //       } else if (!res?.data?.isAlreadyCreated) {
+  //         setShowModal(true);
+  //       } else {
+  //         navigate("/apply");
+  //       }
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   },
+  // });
+
+
+  // handleLogin ke andar thoda sudhaar (Sirf path ensure karne ke liye)
+const handleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
         const res = await axios.post(
@@ -37,13 +75,15 @@ const Signup = () => {
           { accessToken: tokenResponse?.access_token }
         );
 
-        setTotoEarnToken(res?.data?.token);
-        dispatch(updateToken(res?.data?.token));
+        // Save zaroori details
         localStorage.setItem("totoToken", res?.data?.token);
         localStorage.setItem("userId", res.data?.user?._id);
+        setTotoEarnToken(res?.data?.token);
+        dispatch(updateToken(res?.data?.token));
 
         const storedRefCode = localStorage.getItem("referralCode");
 
+        // Agar naya user hai aur URL mein ref code tha
         if (!res?.data?.isAlreadyCreated && storedRefCode) {
           await axios.patch(
             `${import.meta.env.VITE_APP_API_BASE_URL}api/user/update-refferBy`,
@@ -55,12 +95,14 @@ const Signup = () => {
           localStorage.removeItem("referralCode");
           navigate("/apply");
         } else if (!res?.data?.isAlreadyCreated) {
+          // Naya user bina URL ref ke aaya hai toh modal dikhao
           setShowModal(true);
         } else {
+          // Purana user hai toh seedha dashboard
           navigate("/apply");
         }
       } catch (error) {
-        console.log(error);
+        console.log("Login Error", error);
       }
     },
   });
