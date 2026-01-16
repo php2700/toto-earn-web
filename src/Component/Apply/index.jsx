@@ -6076,12 +6076,18 @@ export default function Apply() {
           </div>
 
           {/* REFERRAL LINK & CODE SECTION RESTORED */}
-          <div className="bg-blue-50 p-4 rounded-xl border border-dashed border-blue-300 mb-8 text-center">
+          {/* <div className="bg-blue-50 p-4 rounded-xl border border-dashed border-blue-300 mb-8 text-center">
             <p className="text-[10px] text-blue-400 font-bold uppercase mb-1 tracking-widest">Your Referral Link & Code</p>
             <p className="text-xs font-mono text-blue-700 font-bold break-all mb-1">{import.meta.env.VITE_WEBSITE_URL}/signup?ref={userData?.referralCode}</p>
             <p className="text-[10px] text-gray-500 italic uppercase">Code: <span className="text-blue-600 font-black">{userData?.referralCode}</span></p>
+          </div> */}
+          <div className="bg-blue-50 p-4 rounded-xl border border-dashed border-blue-300 mb-8 text-center">
+            <p className="text-[10px] text-blue-400 font-bold uppercase mb-1 tracking-widest">Your Referral Link & Code</p>
+            <p className="text-xs font-mono text-blue-700 font-bold break-all mb-1">
+              {window.location.origin}/signup?ref={userData?.referralCode}
+            </p>
+            <p className="text-[10px] text-gray-500 italic uppercase">Code: <span className="text-blue-600 font-black">{userData?.referralCode}</span></p>
           </div>
-
           {/* SOCIAL BUTTONS */}
           <div className="grid grid-cols-2 md:flex md:flex-wrap justify-center gap-3 mb-8">
             <button onClick={() => window.open(`https://wa.me/?text=Earn Rewards: ${import.meta.env.VITE_WEBSITE_URL}/signup?ref=${userData?.referralCode}`, "_blank")} className="bg-green-500 text-white py-3 rounded-full font-bold shadow-md text-[10px] md:text-xs uppercase transition hover:scale-105">WhatsApp</button>
@@ -6221,3 +6227,371 @@ export default function Apply() {
     </section>
   );
 }
+
+
+// import { useEffect, useState } from "react";
+// import bgImg from "../../assets/h1_hero.jpg";
+// import axios from "axios";
+// import { useDispatch, useSelector } from "react-redux";
+// import { fetchUserData } from "../Store/userSlice";
+// import { toast } from "react-toastify";
+// import account from "../../assets/account.png";
+// import googleImg from "../../assets/google.png";
+// import share from "../../assets/share.png";
+// import ScratchCard from "../Home/ScratchCard";
+// import congs from "../../assets/cong.png";
+
+// export default function Apply() {
+//   const dispatch = useDispatch();
+//   const token = localStorage.getItem("totoToken");
+//   const { userData } = useSelector((state) => state.user);
+
+//   // UI States
+//   const [copied, setCopied] = useState(false);
+//   const [showModal, setShowModal] = useState(false);
+//   const [showQR, setShowQR] = useState(false);
+//   const [paymentModel, setPaymentModel] = useState(false);
+//   const [lastWithdrawal, setLastWithdrawal] = useState(null);
+
+//   // Form States
+//   const [bankAccountName, setBankAccountName] = useState("");
+//   const [ifscCode, setIfscCode] = useState("");
+//   const [utrNumber, setUtrNumber] = useState("");
+//   const [paymentImage, setPaymentImage] = useState(null);
+//   const [previewImage, setPreviewImage] = useState(null);
+//   const [paymentConfig, setPaymentConfig] = useState();
+//   const [isSubmitting, setIsSubmitting] = useState(false);
+
+//   // --- 10 LEVELS WITHDRAWAL CONFIG ---
+//   const withdrawalLevels = [
+//     { level: 1, amount: 50, fee: 25 },
+//     { level: 2, amount: 500, fee: 250 },
+//     { level: 3, amount: 2000, fee: 1000 },
+//     { level: 4, amount: 5000, fee: 2500 },
+//     { level: 5, amount: 10000, fee: 5000 },
+//     { level: 6, amount: 20000, fee: 10000 },
+//     { level: 7, amount: 50000, fee: 25000 },
+//     { level: 8, amount: 100000, fee: 50000 },
+//     { level: 9, amount: 200000, fee: 100000 },
+//     { level: 10, amount: 500000, fee: 250000 },
+//   ];
+
+//   const currentLevelIndex = ((userData?.withdrawalStage || 1) - 1) % 10;
+//   const currentLevel = withdrawalLevels[currentLevelIndex];
+
+//   useEffect(() => {
+//     dispatch(fetchUserData());
+//     fetchLastWithdrawalStatus();
+//   }, [dispatch]);
+
+//   const fetchLastWithdrawalStatus = async () => {
+//     try {
+//       const res = await axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}api/user/my-last-withdrawal`, 
+//       { headers: { Authorization: `Bearer ${token}` } });
+//       setLastWithdrawal(res.data?.data);
+//     } catch (err) { console.error("Status fetch error", err); }
+//   };
+
+//   // --- Scratch Card Timer Logic ---
+//   const [canScratch, setCanScratch] = useState(false);
+//   const [isWithin30Days, setIsWithin30Days] = useState(false);
+//   const [timeLeft, setTimeLeft] = useState("");
+//   const [pointsEarned, setPointsEarned] = useState(0);
+//   const [scratchType, setScratchType] = useState("");
+
+//   useEffect(() => {
+//     if (userData) {
+//       const signupDate = new Date(userData.createdAt);
+//       const now = new Date();
+//       const diffDays = Math.ceil((now - signupDate) / (1000 * 60 * 60 * 24));
+//       setIsWithin30Days(diffDays <= 30);
+
+//       const checkTimer = () => {
+//         if (userData.scratchCardsBalance > 0) {
+//           setCanScratch(true);
+//           setScratchType("referral");
+//           setPointsEarned(20000);
+//           return;
+//         }
+//         const lastScratch = localStorage.getItem(`last_scratch_${userData._id}`);
+//         if (lastScratch) {
+//           const lastTime = new Date(lastScratch).getTime();
+//           const distance = (24 * 60 * 60 * 1000) - (new Date().getTime() - lastTime);
+//           if (distance > 0) {
+//             setCanScratch(false);
+//             const h = Math.floor(distance / (1000 * 60 * 60));
+//             const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+//             setTimeLeft(`${h}h ${m}m`);
+//           } else { setCanScratch(true); setScratchType("daily"); }
+//         } else { setCanScratch(true); setScratchType("daily"); }
+//       };
+//       checkTimer();
+//       const interval = setInterval(checkTimer, 60000);
+//       return () => clearInterval(interval);
+//     }
+//   }, [userData]);
+
+//   useEffect(() => {
+//     if (!canScratch || scratchType !== "daily" || !userData?._id || !token) return;
+//     const getPoints = async () => {
+//       try {
+//         const res = await axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}api/user/today-reward-points/${userData._id}`,
+//           { headers: { Authorization: `Bearer ${token}` } });
+//         setPointsEarned(res.data?.points || 0);
+//       } catch (err) { console.error(err); }
+//     };
+//     getPoints();
+//   }, [canScratch, scratchType, userData?._id, token]);
+
+//   const handleScratchComplete = async () => {
+//     try {
+//       const endpoint = scratchType === "referral" ? "claim-referral-coupon" : "claim-daily-points";
+//       const res = await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}api/user/${endpoint}`,
+//         { userId: userData._id }, { headers: { Authorization: `Bearer ${token}` } });
+//       if (res.status === 200) {
+//         toast.success(`${res.data.points} Points added! ✨`);
+//         if (scratchType === "daily") localStorage.setItem(`last_scratch_${userData._id}`, new Date().toISOString());
+//         setCanScratch(false); setPointsEarned(0); dispatch(fetchUserData());
+//       }
+//     } catch (err) { toast.error("Error claiming points."); }
+//   };
+
+//   const handleClaimPointsToCash = async () => {
+//     if (userData?.pointsBalance < 1000) return toast.warning("Min 1,000 points needed!");
+//     try {
+//       const res = await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}api/user/convert-points`,
+//         { userId: userData._id }, { headers: { Authorization: `Bearer ${token}` } });
+//       if (res.status === 200) { toast.success(`Converted to cash! 💰`); dispatch(fetchUserData()); }
+//     } catch (err) { toast.error("Conversion failed."); }
+//   };
+
+//   const handleWithdrawClick = () => {
+//     if (userData?.walletAmount < currentLevel.amount) {
+//       return toast.error(`Low Balance! Need ₹${currentLevel.amount} for Level ${currentLevel.level}`);
+//     }
+//     setShowModal(true);
+//   };
+
+//   const handleProceedToQR = async () => {
+//     if (!bankAccountName || !ifscCode) return toast.warning("Enter bank details");
+//     try {
+//       const res = await axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}api/user/payment-config`, { headers: { Authorization: `Bearer ${token}` } });
+//       setPaymentConfig(res?.data);
+//       setShowModal(false);
+//       setShowQR(true);
+//     } catch (error) { toast.error("Error fetching payment info"); }
+//   };
+
+//   const submitWithdrawalProof = async () => {
+//     if (!utrNumber) return toast.warning("Enter UTR Number");
+//     setIsSubmitting(true);
+//     const formData = new FormData();
+//     formData.append("userId", userData?._id);
+//     formData.append("utrNumber", utrNumber);
+//     formData.append("bankAccount", bankAccountName);
+//     formData.append("ifscCode", ifscCode);
+//     formData.append("level", currentLevel.level);
+//     if (paymentImage) formData.append("paymentImage", paymentImage);
+
+//     try {
+//       await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}api/user/withdraw-request`, formData, { headers: { Authorization: `Bearer ${token}` } });
+//       toast.success("Withdrawal Request Submitted!");
+//       setPaymentModel(false);
+//       fetchLastWithdrawalStatus(); 
+//       dispatch(fetchUserData());
+//     } catch (error) { toast.error("Error submitting proof."); }
+//     finally { setIsSubmitting(false); }
+//   };
+
+//   // FIX: Using window.location.origin to avoid 'undefined'
+//   const copyReferral = async () => {
+//     const link = `${window.location.origin}/signup?ref=${userData?.referralCode}`;
+//     await navigator.clipboard.writeText(link);
+//     setCopied(true); setTimeout(() => setCopied(false), 2000);
+//     toast.success("Link Copied!");
+//   };
+
+//   const handleInst = () => {
+//     const link = `${window.location.origin}/signup?ref=${userData?.referralCode}`;
+//     navigator.clipboard.writeText(`Join and earn rewards: ${link}`).then(() => window.open("https://www.instagram.com/direct/inbox/", "_blank"));
+//   };
+
+//   return (
+//     <section className="w-full pt-10 bg-gray-50 overflow-x-hidden text-[Poppins]">
+//       <div className="h-[30vh] md:h-[50vh] flex items-center justify-center bg-cover bg-center" style={{ backgroundImage: `url(${bgImg})` }}>
+//         <h1 className="text-4xl md:text-6xl font-bold text-gray-800 tracking-tighter uppercase italic text-center px-4">REFER & EARN</h1>
+//       </div>
+
+//       <div className="flex flex-col items-center justify-center min-h-screen p-3 md:p-4 -mt-16 md:-mt-20">
+//         <div className="bg-white p-4 md:p-6 rounded-[2rem] md:rounded-[2.5rem] shadow-2xl w-full max-w-4xl border border-gray-100">
+          
+//           <h1 className="text-2xl font-bold text-center mb-4 text-blue-800 tracking-tight">Refer & Earn – Earn 20k Points (₹200) Per Friend! 💰</h1>
+//           <p className="text-center text-gray-600 mb-6 text-sm">Join now for FREE! No activation charges. Share link and withdraw level by level. 💸</p>
+//           <button className="w-full bg-green-600 text-white py-3 rounded-lg mb-6 font-black shadow-md uppercase">✓ ACCOUNT ACTIVE</button>
+
+//           {/* BALANCE GRID */}
+//           <div className="grid grid-cols-2 gap-px bg-gray-200 border border-gray-200 rounded-[1.5rem] md:rounded-[2rem] overflow-hidden mb-8 shadow-lg text-center">
+//             <div className="bg-white p-4 py-8 md:p-10 border-r border-b">
+//                <p className="text-[9px] md:text-[11px] text-amber-500 font-black uppercase tracking-widest mb-1">Points Balance</p>
+//                <p className="text-5xl md:text-7xl font-black text-amber-600 tracking-tighter drop-shadow-sm">{userData?.pointsBalance || 0}</p>
+//             </div>
+//             <div className="bg-white p-4 py-8 md:p-10 border-b">
+//                <p className="text-[9px] md:text-[11px] text-blue-400 font-black uppercase tracking-widest mb-1">Money Wallet (₹)</p>
+//                <p className="text-5xl md:text-7xl font-black text-blue-800 tracking-tighter drop-shadow-sm">₹{userData?.walletAmount || 0}</p>
+//             </div>
+//             <div className="bg-white p-3 md:p-4 border-r">
+//               <p className="text-gray-400 text-[8px] md:text-[10px] uppercase font-bold">Current Stage</p>
+//               <p className="text-base md:text-xl font-bold text-green-600">Level {currentLevel.level}/10</p>
+//             </div>
+//             <div className="bg-white p-3 md:p-4">
+//               <p className="text-gray-400 text-[8px] md:text-[10px] uppercase font-bold">Next Payout</p>
+//               <p className="text-base md:text-xl font-bold text-gray-800">₹{currentLevel.amount.toLocaleString()}</p>
+//             </div>
+//           </div>
+
+//           {/* REFERRAL LINK & CODE SECTION - Using window.location.origin */}
+//           <div className="bg-blue-50 p-4 rounded-xl border border-dashed border-blue-300 mb-8 text-center">
+//             <p className="text-[10px] text-blue-400 font-bold uppercase mb-1 tracking-widest">Your Referral Link & Code</p>
+//             <p className="text-xs font-mono text-blue-700 font-bold break-all mb-1">
+//               {window.location.origin}/signup?ref={userData?.referralCode}
+//             </p>
+//             <p className="text-[10px] text-gray-500 italic uppercase">Code: <span className="text-blue-600 font-black">{userData?.referralCode}</span></p>
+//           </div>
+
+//           {/* SOCIAL BUTTONS */}
+//           <div className="grid grid-cols-2 md:flex md:flex-wrap justify-center gap-3 mb-8">
+//             <button onClick={() => window.open(`https://wa.me/?text=Earn Rewards: ${window.location.origin}/signup?ref=${userData?.referralCode}`, "_blank")} className="bg-green-500 text-white py-3 rounded-full font-bold shadow-md text-[10px] md:text-xs uppercase transition hover:scale-105">WhatsApp</button>
+//             <button onClick={copyReferral} className="bg-slate-700 text-white py-3 rounded-full font-bold shadow-md text-[10px] md:text-xs uppercase transition hover:scale-105">{copied ? "Copied!" : "Copy Link"}</button>
+//             <button onClick={handleInst} className="bg-pink-500 text-white py-3 md:px-10 rounded-full font-bold shadow-md text-[10px] md:text-xs uppercase col-span-2 transition hover:scale-105">INSTAGRAM</button>
+//           </div>
+
+//           {/* STAGE PROGRESS LINE */}
+//           <div className="w-full px-2 mb-8">
+//              <div className="flex justify-between items-center mb-3">
+//                 <span className="text-[9px] font-black text-blue-600 uppercase tracking-widest italic">Stage Journey Progress</span>
+//                 <span className="text-[14px] font-black text-blue-900 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">Lvl {userData?.withdrawalStage || 1} / 10</span>
+//              </div>
+//              <div className="relative w-full h-3 md:h-4 bg-gray-100 rounded-full border-2 border-white shadow-inner overflow-hidden">
+//                 <div 
+//                   className="absolute top-0 left-0 h-full bg-gradient-to-r from-indigo-500 via-blue-600 to-indigo-700 transition-all duration-1000 ease-out z-10"
+//                   style={{ width: `${((userData?.withdrawalStage || 1) / 10) * 100}%` }}
+//                 ></div>
+//              </div>
+//           </div>
+
+//           {/* DYNAMIC ACTION AREA */}
+//           {lastWithdrawal?.status === 'pending' ? (
+//             <div className="w-full relative py-10 px-4 bg-gradient-to-b from-white to-blue-50 border-4 border-indigo-100 rounded-[2.5rem] shadow-xl text-center mb-8">
+//                <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-48 pointer-events-none drop-shadow-xl text-center">
+//                   <img src={congs} alt="congratulations" className="animate-bounce inline-block" />
+//                </div>
+//                <div className="mt-4">
+//                   <h3 className="text-2xl md:text-4xl font-black text-blue-900 tracking-tighter uppercase italic drop-shadow-sm">Congratulations!</h3>
+//                   <p className="text-[12px] md:text-sm font-bold text-gray-600 uppercase tracking-widest mt-2 px-2 leading-snug">Withdrawal Request Submitted! <br/> <span className="text-indigo-600 font-black">Level {lastWithdrawal.level} Payout</span> is pending admin review.</p>
+//                   <div className="mt-6 inline-block bg-yellow-400 text-white px-8 py-2 rounded-full font-black text-[10px] uppercase animate-pulse shadow-md">⏳ Status: Processing...</div>
+//                </div>
+//             </div>
+//           ) : (
+//             <div className="group">
+//                <button 
+//                 onClick={handleWithdrawClick} 
+//                 disabled={userData?.walletAmount < currentLevel.amount} 
+//                 className={`w-full py-5 md:py-7 rounded-[1.5rem] md:rounded-[2.5rem] font-black text-xl md:text-3xl shadow-xl mb-4 transition-all transform active:scale-95 flex flex-col items-center justify-center ${userData?.walletAmount >= currentLevel.amount ? "bg-indigo-600 text-white hover:bg-indigo-700" : "bg-gray-200 text-gray-400 cursor-not-allowed"}`}
+//                >
+//                  <span className="text-[8px] md:text-[10px] uppercase tracking-[0.4em] opacity-80 mb-1">Available to Unlock</span>
+//                  <span>WITHDRAW ₹{currentLevel.amount.toLocaleString()}</span>
+//                </button>
+//                <div className="flex justify-between px-4 text-gray-400 text-[10px] md:text-[15px] font-black uppercase tracking-widest italic opacity-60">
+//                   <span>Processing Fee: ₹{currentLevel.fee.toLocaleString()}</span>
+//                   <span>Withdrawal Level: {currentLevel.level}/10</span>
+//                </div>
+//             </div>
+//           )}
+
+//           {/* SCRATCH SECTION */}
+//           {isWithin30Days && (
+//             <div className="mt-10 w-full bg-gradient-to-r from-orange-400 to-rose-500 p-5 md:p-6 rounded-[2.5rem] shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6 border-4 border-white/20">
+//               <div className="text-white text-center md:text-left">
+//                 <h2 className="text-xl md:text-2xl font-black uppercase italic tracking-tighter">✨ Scratch Card Reward ✨</h2>
+//                 <button onClick={handleClaimPointsToCash} className="mt-4 bg-white text-rose-600 px-8 py-2 rounded-full font-black text-[10px] shadow-lg transform hover:scale-105 transition-all">CLAIM CASH (₹)</button>
+//               </div>
+//               <div className="bg-white/20 p-2 rounded-3xl backdrop-blur-md border border-white/30 w-full md:min-w-[280px] min-h-[160px] flex items-center justify-center text-white relative overflow-hidden">
+//                 {canScratch ? (
+//                   <div className="w-full flex justify-center">
+//                     <ScratchCard width={260} height={130} revealPercent={60} rewardValue={`${pointsEarned.toLocaleString()} Pts`} onComplete={handleScratchComplete} />
+//                   </div>
+//                 ) : (
+//                   <div className="text-center bg-white/10 w-full py-6 rounded-xl border border-white/10">
+//                     <p className="text-[9px] font-bold opacity-80 uppercase mb-1">Next In</p>
+//                     <div className="text-4xl font-black tabular-nums">{timeLeft}</div>
+//                   </div>
+//                 )}
+//               </div>
+//             </div>
+//           )}
+//         </div>
+//       </div>
+
+//       {/* --- MODAL (Congratulations fix) --- */}
+//       {showModal && (
+//         <div className="fixed inset-0 flex items-center justify-center bg-black/70 z-50 p-4 backdrop-blur-sm">
+//           <div className="bg-white rounded-[2.5rem] p-10 shadow-2xl w-full max-sm:max-w-sm border-t-8 border-indigo-600 relative overflow-visible">
+//             <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-48 text-center pointer-events-none">
+//                <img src={congs} alt="congrats" className="w-40 h-auto animate-bounce inline-block drop-shadow-2xl" />
+//             </div>
+//             <div className="text-center mt-6">
+//                 <h3 className="text-2xl font-black text-indigo-700 tracking-tighter uppercase italic drop-shadow-sm animate-pulse">Congratulations!</h3>
+//                 <div className="h-1 w-20 bg-indigo-100 mx-auto rounded-full my-2"></div>
+//                 <h2 className="text-lg font-bold text-gray-700 uppercase tracking-tight">Withdraw Level {currentLevel.level}</h2>
+//                 <p className="text-[15px] text-gray-400 font-bold mb-8 uppercase tracking-[0.2em]">Payout: ₹{currentLevel.amount}</p>
+//             </div>
+//             <input type="text" placeholder="Bank Account Number" onChange={(e) => setBankAccountName(e.target.value)} className="w-full bg-gray-50 border-2 border-gray-100 p-4 rounded-xl mb-4 text-xs focus:border-indigo-500 outline-none" />
+//             <input type="text" placeholder="IFSC Code" onChange={(e) => setIfscCode(e.target.value)} className="w-full bg-gray-50 border-2 border-gray-100 p-4 rounded-xl mb-6 text-xs focus:border-indigo-500 outline-none" />
+//             <div className="flex gap-3">
+//               <button onClick={() => setShowModal(false)} className="flex-1 bg-gray-100 py-3 rounded-xl font-black text-[10px] uppercase">Cancel</button>
+//               <button onClick={handleProceedToQR} className="flex-1 bg-indigo-600 text-white py-3 rounded-xl font-black text-[10px] uppercase shadow-lg">Next Step</button>
+//             </div>
+//           </div>
+//         </div>
+//       )}
+
+//       {/* --- QR & PAYMENT MODALS --- */}
+//       {showQR && (
+//         <div className="fixed inset-0 flex items-center justify-center bg-black/80 z-50 p-4 backdrop-blur-md text-center">
+//           <div className="bg-white rounded-[2rem] p-6 md:p-10 shadow-2xl w-full max-w-sm border-t-8 border-indigo-600">
+//             <h2 className="text-[10px] font-black mb-1 uppercase tracking-widest text-gray-400">Processing Fee</h2>
+//             <p className="text-4xl font-black text-indigo-600 mb-6 tracking-tighter">₹{currentLevel.fee.toLocaleString()}</p>
+//             <div className="bg-gray-50 p-4 rounded-[1.5rem] mb-6 border border-dashed border-gray-300">
+//                 <img src={`${import.meta.env.VITE_APP_API_BASE_URL}${paymentConfig?.imageName}`} alt="QR" className="w-40 h-40 mx-auto rounded-xl" />
+//             </div>
+//             <p className="font-mono bg-blue-50 py-3 rounded-2xl text-blue-600 font-bold mb-8 text-[10px] break-all px-2">{paymentConfig?.upiId}</p>
+//             <button onClick={() => { setShowQR(false); setPaymentModel(true); }} className="w-full bg-indigo-600 text-white py-4 rounded-xl font-black uppercase text-xs shadow-xl">I HAVE PAID — NEXT</button>
+//           </div>
+//         </div>
+//       )}
+
+//       {paymentModel && (
+//         <div className="fixed inset-0 flex items-center justify-center bg-black/70 z-50 p-4 backdrop-blur-sm text-center">
+//           <div className="bg-white rounded-[2rem] shadow-2xl p-6 md:p-10 w-full max-w-sm border-t-8 border-green-500">
+//             <h2 className="text-2xl font-black mb-1 uppercase italic text-gray-800 tracking-tighter">Final Step</h2>
+//             <p className="text-[10px] text-gray-400 font-black mb-6 uppercase tracking-widest italic">Submit Payment Proof</p>
+//             <input type="text" placeholder="UTR / Transaction ID" value={utrNumber} onChange={(e) => setUtrNumber(e.target.value)} className="w-full bg-gray-50 border-2 border-gray-100 p-4 rounded-2xl mb-4 text-xs outline-none focus:border-green-500" />
+//             <input type="file" onChange={(e) => {
+//               const file = e.target.files[0];
+//               setPaymentImage(file);
+//               if (file) {
+//                 const reader = new FileReader();
+//                 reader.onloadend = () => setPreviewImage(reader.result);
+//                 reader.readAsDataURL(file);
+//               }
+//             }} className="w-full mb-8 text-[10px] text-gray-400" />
+//             {previewImage && <img src={previewImage} className="w-full h-32 object-contain rounded-2xl mb-8 border-2 border-gray-50 shadow-md" alt="preview" />}
+//             <button onClick={submitWithdrawalProof} disabled={isSubmitting} className="w-full bg-green-600 text-white py-4 rounded-xl font-black uppercase text-xs shadow-xl active:scale-95 transition-all">
+//               {isSubmitting ? "PROCESSING..." : "SUBMIT FOR REVIEW"}
+//             </button>
+//           </div>
+//         </div>
+//       )}
+//     </section>
+//   );
+// }
