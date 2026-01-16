@@ -6027,11 +6027,23 @@ export default function Apply() {
     finally { setIsSubmitting(false); }
   };
 
+  // const copyReferral = async () => {
+  //   const link = `${import.meta.env.VITE_WEBSITE_URL}/signup?ref=${userData?.referralCode}`;
+  //   await navigator.clipboard.writeText(link);
+  //   setCopied(true); setTimeout(() => setCopied(false), 2000);
+  //   toast.success("Link Copied!");
+  // };
+
   const copyReferral = async () => {
-    const link = `${import.meta.env.VITE_WEBSITE_URL}/signup?ref=${userData?.referralCode}`;
+
+    const link = `${window.location.origin}/signup?ref=${userData?.referralCode}`;
+
     await navigator.clipboard.writeText(link);
+
     setCopied(true); setTimeout(() => setCopied(false), 2000);
+
     toast.success("Link Copied!");
+
   };
 
   const handleInst = () => {
@@ -6089,12 +6101,34 @@ export default function Apply() {
             <p className="text-[10px] text-gray-500 italic uppercase">Code: <span className="text-blue-600 font-black">{userData?.referralCode}</span></p>
           </div>
           {/* SOCIAL BUTTONS */}
-          <div className="grid grid-cols-2 md:flex md:flex-wrap justify-center gap-3 mb-8">
+          {/* <div className="grid grid-cols-2 md:flex md:flex-wrap justify-center gap-3 mb-8">
             <button onClick={() => window.open(`https://wa.me/?text=Earn Rewards: ${import.meta.env.VITE_WEBSITE_URL}/signup?ref=${userData?.referralCode}`, "_blank")} className="bg-green-500 text-white py-3 rounded-full font-bold shadow-md text-[10px] md:text-xs uppercase transition hover:scale-105">WhatsApp</button>
             <button onClick={copyReferral} className="bg-slate-700 text-white py-3 rounded-full font-bold shadow-md text-[10px] md:text-xs uppercase transition hover:scale-105">{copied ? "Copied!" : "Copy Link"}</button>
             <button onClick={handleInst} className="bg-pink-500 text-white py-3 md:px-10 rounded-full font-bold shadow-md text-[10px] md:text-xs uppercase col-span-2 transition hover:scale-105">INSTAGRAM</button>
-          </div>
-
+          </div> */}
+{/* SOCIAL BUTTONS - Fixed Layout */}
+<div className="flex flex-wrap justify-center items-center gap-3 mb-8 px-2">
+  <button 
+    onClick={() => window.open(`https://wa.me/?text=Earn Rewards: https://earn.totoearn.shop/signup?ref=${userData?.referralCode}`, "_blank")} 
+    className="flex-1 min-w-[100px] sm:flex-none bg-green-500 text-white py-3 px-6 rounded-full font-bold shadow-md text-[10px] sm:text-xs uppercase transition hover:scale-105 active:scale-95"
+  >
+    WhatsApp
+  </button>
+  
+  <button 
+    onClick={copyReferral} 
+    className="flex-1 min-w-[100px] sm:flex-none bg-slate-700 text-white py-3 px-6 rounded-full font-bold shadow-md text-[10px] sm:text-xs uppercase transition hover:scale-105 active:scale-95"
+  >
+    {copied ? "Copied!" : "Copy Link"}
+  </button>
+  
+  <button 
+    onClick={handleInst} 
+    className="w-full sm:w-auto bg-pink-500 text-white py-3 px-10 rounded-full font-bold shadow-md text-[10px] sm:text-xs uppercase transition hover:scale-105 active:scale-95"
+  >
+    INSTAGRAM
+  </button>
+</div>
           {/* --- STAGE PROGRESS LINE --- */}
           <div className="w-full px-2 mb-8">
              <div className="flex justify-between items-center mb-3">
