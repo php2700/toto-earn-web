@@ -6061,7 +6061,7 @@ export default function Apply() {
         <div className="bg-white p-4 md:p-6 rounded-[2rem] md:rounded-[2.5rem] shadow-2xl w-full max-w-4xl border border-gray-100">
           
           {/* <h1 className="text-xl md:text-2xl font-bold text-center mb-6 text-blue-800 tracking-tight">Refer & Earn – Dashboard 💰</h1> */}
-          <h1 className="text-2xl font-bold text-center mb-4 text-blue-800 tracking-tight">Refer & Earn – Earn 20k Points (₹200) Per Friend! 💰</h1>
+          <h1 className="text-2xl font-bold text-center mb-4 text-blue-800 tracking-tight">Refer & Earn – Earn 20k Points (₹50) Per Friend! 💰</h1>
           <p className="text-center text-gray-600 mb-6 text-sm">Join now for FREE! No activation charges. Share link and withdraw level by level. 💸</p>
           <button className="w-full bg-green-600 text-white py-3 rounded-lg mb-6 font-black shadow-md uppercase">✓ ACTIVE USER</button>
           
@@ -6069,10 +6069,44 @@ export default function Apply() {
 
           {/* BALANCE GRID - LARGE FONTS RESTORED */}
           <div className="grid grid-cols-2 gap-px bg-gray-200 border border-gray-200 rounded-[1.5rem] md:rounded-[2rem] overflow-hidden mb-8 shadow-lg text-center">
-            <div className="bg-white p-4 py-8 md:p-10 border-r border-b">
+            {/* <div className="bg-white p-4 py-8 md:p-10 border-r border-b">
                <p className="text-[9px] md:text-[11px] text-amber-500 font-black uppercase tracking-widest mb-1">Points Balance</p>
                <p className="text-5xl md:text-7xl font-black text-amber-600 tracking-tighter drop-shadow-sm">{userData?.pointsBalance || 0}</p>
-            </div>
+                <div className="bg-white p-4 border rounded-xl shadow-sm">
+        <p className="text-[10px] text-indigo-600 font-bold uppercase">Referral Points </p>
+        <p className="text-xl font-black">{userData?.referralPointsBalance || 0}</p>
+    </div>
+            </div> */}
+            <div className="bg-white p-6 md:p-10 border-r border-b flex flex-col items-center justify-center min-h-[250px]">
+  
+  {/* Section 1: Daily Points (Main Highlight) */}
+  <div className="text-center mb-6 w-full">
+    <p className="text-[10px] md:text-[11px] text-amber-500 font-black uppercase tracking-widest mb-1 italic">
+       Daily Balance
+    </p>
+    <p className="text-6xl md:text-7xl font-black text-amber-600 tracking-tighter drop-shadow-sm">
+       {userData?.pointsBalance || 0}
+    </p>
+  </div>
+
+  {/* Visual Divider Line */}
+  <div className="w-3/4 border-t border-gray-100 mb-6"></div>
+
+  {/* Section 2: Referral Points (Premium Styled Badge) */}
+  <div className="w-full bg-indigo-50/50 rounded-2xl p-4 border border-indigo-100 shadow-inner group hover:bg-indigo-100 transition-all duration-300">
+    <p className="text-[10px] text-indigo-600 font-black uppercase tracking-widest mb-1">
+       Referral Points
+    </p>
+    <div className="flex items-center justify-center gap-2">
+       <span className="text-indigo-400 text-sm animate-pulse">✨</span>
+       <p className="text-3xl md:text-4xl font-black text-indigo-900 tracking-tight tabular-nums">
+          {userData?.referralPointsBalance || 0}
+       </p>
+       <span className="text-indigo-400 text-sm animate-pulse">✨</span>
+    </div>
+  </div>
+</div>
+            
             <div className="bg-white p-4 py-8 md:p-10 border-b">
                <p className="text-[9px] md:text-[11px] text-blue-400 font-black uppercase tracking-widest mb-1">Money Wallet (₹)</p>
                <p className="text-5xl md:text-7xl font-black text-blue-800 tracking-tighter drop-shadow-sm">₹{userData?.walletAmount || 0}</p>

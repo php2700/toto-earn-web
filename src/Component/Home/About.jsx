@@ -25,13 +25,14 @@ const AboutSection = () => {
       <div className="flex flex-col items-center justify-center bg-gray-100 p-10">
         <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-3xl">
           <h1 className="text-2xl font-bold text-center mb-4">
-            Refer & Earn – Earn ₹200 for Every Friend! 💰
+            {/* Refer & Earn – Earn ₹200 for Every Friend! 💰 */}
+            Refer & Earn – Earn ₹50 for Every Friend! 💰
           </h1>
           <p className="text-center text-gray-600 mb-4">
-            Refer & Earn – Earn ₹200 for Every Friend! 💰 Join now, pay ₹200
+            Refer & Earn – Earn ₹50 for Every Friend! 💰 Join now, pay ₹50
             activation fee (only once) and get ₹100 signup bonus instantly!
             Share your referral link — every time your friend joins and
-            activates, you earn ₹200 instantly in your account! 💸 One-time
+            activates, you earn ₹50 instantly in your account! 💸 One-time
             payment → Lifetime free earning opportunity!
           </p>
           <button
