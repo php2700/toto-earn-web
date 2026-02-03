@@ -5967,10 +5967,23 @@ export default function Apply() {
     getPoints();
   }, [canScratch, scratchType, userData?._id, token]);
 
+  // const handleScratchComplete = async () => {
+  //   try {
+  //     const endpoint = scratchType === "referral" ? "claim-referral-coupon" : "claim-daily-points";
+  //     const res = await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}api/user/${endpoint}`,
+  //       { userId: userData._id }, { headers: { Authorization: `Bearer ${token}` } });
+  //     if (res.status === 200) {
+  //       toast.success(`${res.data.points} Points added! ✨`);
+  //       if (scratchType === "daily") localStorage.setItem(`last_scratch_${userData._id}`, new Date().toISOString());
+  //       setCanScratch(false); setPointsEarned(0); dispatch(fetchUserData());
+  //     }
+  //   } catch (err) { toast.error("Error claiming points."); }
+  // };
+
   const handleScratchComplete = async () => {
     try {
       const endpoint = scratchType === "referral" ? "claim-referral-coupon" : "claim-daily-points";
-      const res = await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}api/user/${endpoint}`,
+      const res = await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}api/${endpoint}`,
         { userId: userData._id }, { headers: { Authorization: `Bearer ${token}` } });
       if (res.status === 200) {
         toast.success(`${res.data.points} Points added! ✨`);
@@ -5980,14 +5993,25 @@ export default function Apply() {
     } catch (err) { toast.error("Error claiming points."); }
   };
 
+  // const handleClaimPointsToCash = async () => {
+  //   if (userData?.pointsBalance < 1000) return toast.warning("Min 1,000 points needed!");
+  //   try {
+  //     const res = await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}api/user/convert-points`,
+  //       { userId: userData._id }, { headers: { Authorization: `Bearer ${token}` } });
+  //     if (res.status === 200) { toast.success(`Converted to cash! 💰`); dispatch(fetchUserData()); }
+  //   } catch (err) { toast.error("Conversion failed."); }
+  // };
+
+
   const handleClaimPointsToCash = async () => {
     if (userData?.pointsBalance < 1000) return toast.warning("Min 1,000 points needed!");
     try {
-      const res = await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}api/user/convert-points`,
+      const res = await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}api/user/ct-points`,
         { userId: userData._id }, { headers: { Authorization: `Bearer ${token}` } });
       if (res.status === 200) { toast.success(`Converted to cash! 💰`); dispatch(fetchUserData()); }
     } catch (err) { toast.error("Conversion failed."); }
   };
+
 
   const handleWithdrawClick = () => {
     if (userData?.walletAmount < currentLevel.amount) {
